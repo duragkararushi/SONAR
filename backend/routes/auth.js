@@ -7,7 +7,9 @@ const db = require('../config/database');
 // Register
 router.post('/register', async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const username = (req.body.username || '').trim();
+    const email = (req.body.email || '').trim().toLowerCase();
+    const password = req.body.password;
 
     if (!username || !email || !password) {
       return res.status(400).json({ error: 'All fields are required' });
@@ -25,7 +27,7 @@ router.post('/register', async (req, res) => {
       [username, email, passwordHash],
       function(err) {
         if (err) {
-          if (err.message.includes('UNIQUE constraint failed')) {
+          if (err.code === 'ER_DUP_ENTRY' || (err.message && err.message.includes('Duplicate entry'))) {
             return res.status(400).json({ error: 'Username or email already exists' });
           }
           return res.status(500).json({ error: 'Database error' });
@@ -56,7 +58,8 @@ router.post('/register', async (req, res) => {
 // Login
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const email = (req.body.email || '').trim().toLowerCase();
+    const password = req.body.password;
 
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password required' });

@@ -23,7 +23,7 @@ router.post('/', auth, (req, res) => {
 // Get recent detections
 router.get('/recent', auth, (req, res) => {
   const userId = req.user.id;
-  const limit = req.query.limit || 50;
+  const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 50, 1), 200);
 
   db.all(
     'SELECT * FROM detections WHERE user_id = ? ORDER BY timestamp DESC LIMIT ?',
