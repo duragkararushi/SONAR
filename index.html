@@ -1,0 +1,1739 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#F5F2EA" />
+  <title>Sonar — Assistive Vision System</title>
+  <meta name="description"
+    content="Sonar is a college major project assistive vision system designed to help visually impaired users understand their surroundings through real-time object detection, proximity awareness, and spoken feedback." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet" />
+  <style>
+    /* ===== DESIGN TOKENS ===== */
+    :root {
+      --bg: #F5F2EA;
+      --surface: #FBFAF6;
+      --surface-muted: #ECE9E0;
+      --surface-warm: #F0EDE4;
+      --text: #1E211D;
+      --text-muted: #686B63;
+      --text-light: #8E9188;
+      --accent: #526B50;
+      --accent-dark: #354A35;
+      --accent-light: #6B8569;
+      --border: #D9D6CC;
+      --border-light: #E8E5DC;
+      --danger: #8B3A3A;
+      --danger-bg: #F2E4E4;
+      --ok: #354A35;
+      --ok-bg: #E3ECE1;
+      --serif: 'DM Serif Display', Georgia, 'Times New Roman', serif;
+      --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      --container-pad: clamp(16px, 4vw, 32px);
+      --section-pad: clamp(48px, 7vw, 92px);
+    }
+
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 76px;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    html, body {
+      overflow-x: hidden;
+      width: 100%;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    img, svg { display: block; max-width: 100%; height: auto; }
+    a { color: var(--accent-dark); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    button { font-family: var(--sans); cursor: pointer; }
+    ::selection { background: var(--accent); color: #fff; }
+
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      top: auto;
+      padding: 12px 24px;
+      background: var(--text);
+      color: var(--surface);
+      font-weight: 600;
+      z-index: 2000;
+      border-radius: 0 0 8px 0;
+    }
+    .skip-link:focus { left: 0; top: 0; }
+
+    .wrap {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 0 var(--container-pad);
+      width: 100%;
+    }
+
+    /* ===== SECTION RHYTHM ===== */
+    .section {
+      padding: var(--section-pad) 0;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s var(--ease), transform 0.6s var(--ease);
+      width: 100%;
+    }
+    .section.is-visible { opacity: 1; transform: translateY(0); }
+    .section + .section { border-top: 1px solid var(--border-light); }
+    .section--alt { background: var(--surface); }
+
+    /* ===== TYPOGRAPHY ===== */
+    h1, h2, h3, h4 { font-family: var(--serif); font-weight: 400; line-height: 1.15; }
+    h1 { font-size: clamp(2.15rem, 4.5vw + 0.5rem, 3.8rem); letter-spacing: -0.015em; color: var(--text); }
+    h2 { font-size: clamp(1.65rem, 3vw + 0.3rem, 2.6rem); margin-bottom: clamp(14px, 2.5vw, 20px); }
+    h3 { font-size: clamp(1.15rem, 1.6vw + 0.2rem, 1.45rem); margin-bottom: 8px; }
+
+    .eyebrow {
+      font-family: var(--sans);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: clamp(10px, 1.8vw, 16px);
+    }
+
+    .subtitle {
+      font-size: clamp(0.95rem, 1.1vw + 0.45rem, 1.12rem);
+      line-height: 1.65;
+      color: var(--text-muted);
+      max-width: 580px;
+    }
+
+    /* ===== NAVIGATION ===== */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(245, 242, 234, 0.94);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-light);
+      padding-top: env(safe-area-inset-top, 0px);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 68px;
+      gap: 16px;
+    }
+
+    .nav__brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--sans);
+      font-weight: 600;
+      font-size: 1rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text);
+      text-decoration: none;
+      min-height: 44px;
+      flex-shrink: 0;
+    }
+
+    .nav__mark { width: 28px; height: 28px; flex-shrink: 0; }
+    .nav__mark circle { fill: none; stroke: var(--accent); stroke-width: 1.2; opacity: 0.35; }
+    .nav__mark circle:first-child { opacity: 0.15; }
+    .nav__mark circle:last-child { opacity: 1; fill: var(--accent); stroke: none; }
+
+    .nav__links {
+      display: flex;
+      align-items: center;
+      gap: clamp(16px, 2.5vw, 30px);
+      list-style: none;
+    }
+
+    .nav__links a {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+    }
+    .nav__links a:hover, .nav__links a:focus-visible { color: var(--text); text-decoration: none; }
+
+    .nav__actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .nav__btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 7px;
+      min-height: 38px;
+      transition: background 0.18s, border-color 0.18s, color 0.18s, transform 0.15s var(--ease);
+    }
+
+    .nav__btn--ghost {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .nav__btn--ghost:hover {
+      background: var(--surface-warm);
+      border-color: var(--accent);
+      color: var(--accent-dark);
+      transform: translateY(-1px);
+    }
+
+    .nav__btn--primary {
+      background: var(--accent);
+      color: #fff;
+      border: 1px solid var(--accent);
+    }
+    .nav__btn--primary:hover {
+      background: var(--accent-dark);
+      border-color: var(--accent-dark);
+      transform: translateY(-1px);
+    }
+
+    .nav__toggle {
+      display: none;
+      background: none;
+      border: none;
+      width: 44px;
+      height: 44px;
+      padding: 10px;
+      color: var(--text);
+      border-radius: 8px;
+    }
+
+    @media (max-width: 820px) {
+      .nav__links { display: none; }
+      .nav__links.is-open {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        box-shadow: 0 16px 36px rgba(30, 33, 29, 0.1);
+        padding: 18px var(--container-pad) 24px;
+        gap: 10px;
+        z-index: 1001;
+      }
+      .nav__links a { font-size: 1rem; width: 100%; padding: 6px 0; }
+      .nav__toggle { display: flex; align-items: center; justify-content: center; }
+    }
+
+    @media (max-width: 460px) {
+      .nav__btn { padding: 7px 11px; font-size: 0.8rem; }
+    }
+
+    /* ===== BUTTONS ===== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 0.94rem;
+      font-weight: 600;
+      padding: 12px 24px;
+      min-height: 46px;
+      border-radius: 8px;
+      border: none;
+      transition: transform 0.15s var(--ease), background 0.2s, border-color 0.2s, color 0.2s;
+      text-decoration: none;
+    }
+    .btn:hover { text-decoration: none; }
+    .btn--primary { background: var(--accent); color: #fff; }
+    .btn--primary:hover { background: var(--accent-dark); transform: translateY(-1px); }
+    .btn--secondary {
+      background: var(--surface);
+      color: var(--text);
+      border: 1.5px solid var(--border);
+    }
+    .btn--secondary:hover {
+      border-color: var(--accent);
+      color: var(--accent-dark);
+      background: rgba(82, 107, 80, 0.05);
+      transform: translateY(-1px);
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      padding: clamp(40px, 6vw, 80px) 0 clamp(36px, 5vw, 68px);
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+      gap: clamp(28px, 5vw, 64px);
+      align-items: center;
+    }
+    .hero__content { max-width: 570px; }
+    .hero h1 { margin-bottom: clamp(14px, 2.5vw, 22px); }
+    .hero__body {
+      font-size: clamp(1rem, 1.1vw + 0.45rem, 1.1rem);
+      line-height: 1.75;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+    .hero__note {
+      font-size: 0.86rem;
+      color: var(--text-light);
+      margin-bottom: clamp(24px, 3.5vw, 34px);
+    }
+    .hero__actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .hero__visual { display: flex; align-items: center; justify-content: center; }
+    .hero__illustration { width: 100%; max-width: 440px; height: auto; }
+
+    @media (max-width: 880px) {
+      .hero { grid-template-columns: 1fr; gap: 32px; text-align: center; }
+      .hero__content { max-width: 100%; margin: 0 auto; }
+      .hero__actions { justify-content: center; flex-direction: column; max-width: 360px; margin: 0 auto; }
+      .hero__actions .btn { width: 100%; }
+      .hero__visual { order: -1; }
+      .hero__illustration { max-width: clamp(210px, 55vw, 300px); margin: 0 auto; }
+    }
+
+    /* ===== DEMO ACCESS GATE BANNER ===== */
+    .gate-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: clamp(28px, 4vw, 48px);
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+      gap: clamp(24px, 4vw, 48px);
+      align-items: center;
+      box-shadow: 0 8px 32px rgba(30, 33, 29, 0.05);
+    }
+    .gate-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent-dark);
+      background: var(--ok-bg);
+      padding: 5px 12px;
+      border-radius: 999px;
+      margin-bottom: 14px;
+    }
+    .gate-card h2 { margin-bottom: 12px; }
+    .gate-card p { color: var(--text-muted); font-size: 0.96rem; line-height: 1.7; margin-bottom: 22px; }
+    .gate-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .gate-preview {
+      background: #24221C;
+      border-radius: 12px;
+      padding: 28px 22px;
+      color: #D4D0C6;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .gate-preview__icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: rgba(82, 107, 80, 0.25);
+      color: #9BB899;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 14px;
+    }
+    .gate-preview h3 { font-size: 1.15rem; color: #FBFAF6; margin-bottom: 8px; }
+    .gate-preview p { font-size: 0.84rem; color: #B0ADA4; margin-bottom: 0; line-height: 1.55; }
+    .gate-features {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 16px;
+    }
+    .gate-features span {
+      font-size: 0.72rem;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #E2DFD6;
+    }
+
+    @media (max-width: 820px) {
+      .gate-card { grid-template-columns: 1fr; }
+    }
+
+    /* ===== CAPABILITIES ===== */
+    .cap-lead {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+      gap: clamp(28px, 5vw, 60px);
+      align-items: center;
+      margin-bottom: clamp(40px, 6vw, 72px);
+    }
+    .cap-lead__visual {
+      background: var(--surface-muted);
+      border-radius: 16px;
+      aspect-ratio: 4/3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    .cap-lead__visual svg { width: 70%; opacity: 0.75; height: auto; }
+    @media (max-width: 768px) {
+      .cap-lead { grid-template-columns: 1fr; text-align: center; }
+      .cap-lead .subtitle { margin: 0 auto; }
+      .cap-lead__visual { max-width: 280px; }
+    }
+
+    .cap-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-top: 1px solid var(--border-light);
+    }
+    .cap-item {
+      padding: clamp(24px, 3.5vw, 36px) clamp(18px, 3vw, 32px);
+      border-bottom: 1px solid var(--border-light);
+    }
+    .cap-item:nth-child(odd) { border-right: 1px solid var(--border-light); }
+    .cap-item__num { font-size: 0.75rem; font-weight: 600; color: var(--accent); margin-bottom: 8px; }
+    .cap-item h3 { font-size: 1.15rem; margin-bottom: 6px; }
+    .cap-item p { font-size: 0.92rem; color: var(--text-muted); line-height: 1.65; }
+    @media (max-width: 680px) {
+      .cap-list { grid-template-columns: 1fr; }
+      .cap-item:nth-child(odd) { border-right: none; }
+    }
+
+    /* ===== HOW IT WORKS ===== */
+    .process-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: clamp(24px, 4vw, 48px);
+      margin-top: clamp(36px, 5vw, 56px);
+    }
+    @media (max-width: 840px) {
+      .process-grid { grid-template-columns: 1fr; gap: 28px; max-width: 480px; margin-left: auto; margin-right: auto; }
+      .process-col { background: var(--surface); border: 1px solid var(--border-light); border-radius: 14px; padding: 28px 20px; }
+    }
+    .process-col { text-align: center; }
+    .process-col__title { font-family: var(--serif); font-size: 1.15rem; margin-bottom: 24px; color: var(--text); }
+    .process-step { display: flex; flex-direction: column; align-items: center; }
+    .process-node {
+      width: 54px; height: 54px; border-radius: 50%; border: 1.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center; background: var(--surface); color: var(--accent);
+    }
+    .process-node svg { width: 22px; height: 22px; }
+    .process-label { font-size: 0.88rem; font-weight: 500; margin: 12px 0 4px; color: var(--text); }
+    .process-desc { font-size: 0.8rem; color: var(--text-muted); max-width: 200px; margin: 0 auto; }
+    .process-arrow { width: 1px; height: 26px; background: var(--border); margin: 0 auto; }
+
+    /* ===== SCENARIOS ===== */
+    .scenarios-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(16px, 2.5vw, 24px);
+      margin-top: clamp(32px, 4vw, 48px);
+    }
+    @media (max-width: 720px) { .scenarios-grid { grid-template-columns: 1fr; } }
+    .scenario-card {
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      border-radius: 14px;
+      padding: clamp(24px, 3.5vw, 36px) clamp(20px, 3vw, 32px);
+    }
+    .scenario-card__icon {
+      width: 44px; height: 44px; border-radius: 10px; background: var(--surface-muted);
+      display: flex; align-items: center; justify-content: center; margin-bottom: 18px; color: var(--accent);
+    }
+    .scenario-card h3 { font-size: 1.15rem; margin-bottom: 10px; }
+    .scenario-card p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.65; }
+    .scenario-card__quote {
+      font-family: var(--serif); font-size: 1.08rem; color: var(--accent-dark); font-style: italic;
+      padding: 14px 0 0; border-top: 1px solid var(--border-light); margin-top: 16px; line-height: 1.5;
+    }
+
+    /* ===== TECH ARCHITECTURE ===== */
+    .tech-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(18px, 3vw, 32px);
+      margin-top: clamp(32px, 4vw, 48px);
+    }
+    @media (max-width: 720px) { .tech-cols { grid-template-columns: 1fr; } }
+    .tech-col {
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      border-radius: 14px;
+      padding: clamp(20px, 3vw, 32px);
+    }
+    .tech-col__header {
+      font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--accent); margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--border-light);
+    }
+    .tech-item { display: flex; align-items: flex-start; gap: 14px; padding: 10px 0; }
+    .tech-item + .tech-item { border-top: 1px solid var(--border-light); }
+    .tech-item__name { font-weight: 600; font-size: 0.9rem; min-width: 140px; flex-shrink: 0; }
+    .tech-item__desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.55; }
+    @media (max-width: 520px) {
+      .tech-item { flex-direction: column; gap: 3px; }
+      .tech-item__name { min-width: unset; }
+    }
+
+    /* ===== PRIVACY ===== */
+    .privacy-block { text-align: center; max-width: 640px; margin: 0 auto; padding: clamp(12px, 3vw, 24px) 0; }
+    .privacy-block h2 { margin-bottom: 20px; }
+    .privacy-block p { font-size: clamp(0.95rem, 1vw + 0.5rem, 1.05rem); line-height: 1.8; color: var(--text-muted); }
+    .privacy-icon {
+      width: 68px; height: 68px; margin: 0 auto 24px; border-radius: 50%; border: 1.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center; background: var(--surface); color: var(--accent);
+    }
+
+    /* ===== METRICS ===== */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      border: 1px solid var(--border-light);
+      border-radius: 14px;
+      overflow: hidden;
+      background: var(--surface);
+      margin-top: clamp(32px, 4vw, 48px);
+    }
+    .metric {
+      padding: clamp(24px, 3.5vw, 36px) clamp(14px, 2vw, 24px);
+      text-align: center;
+      border-right: 1px solid var(--border-light);
+    }
+    .metric:last-child { border-right: none; }
+    .metric__value { font-family: var(--serif); font-size: clamp(1.5rem, 2.5vw, 2.2rem); color: var(--text); margin-bottom: 6px; }
+    .metric__label { font-size: 0.78rem; color: var(--text-muted); line-height: 1.45; }
+    .metric__note { font-size: 0.68rem; color: var(--text-light); margin-top: 4px; font-style: italic; }
+    @media (max-width: 960px) and (min-width: 601px) {
+      .metrics-grid { grid-template-columns: repeat(3, 1fr); }
+      .metric:nth-child(3) { border-right: none; }
+      .metric:nth-child(1), .metric:nth-child(2), .metric:nth-child(3) { border-bottom: 1px solid var(--border-light); }
+      .metric:nth-child(5) { grid-column: 2 / 4; border-right: none; }
+    }
+    @media (max-width: 600px) {
+      .metrics-grid { grid-template-columns: 1fr 1fr; }
+      .metric { border-bottom: 1px solid var(--border-light); }
+      .metric:nth-child(2n) { border-right: none; }
+      .metric:last-child { grid-column: span 2; border-right: none; border-bottom: none; }
+    }
+
+    /* ===== FUTURE ===== */
+    .future-list { margin-top: clamp(32px, 4vw, 48px); max-width: 720px; }
+    .future-item { display: flex; gap: 16px; padding: 18px 0; border-bottom: 1px solid var(--border-light); align-items: flex-start; }
+    .future-item__marker {
+      width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--accent); flex-shrink: 0; margin-top: 6px;
+    }
+    .future-item__content h3 { font-family: var(--sans); font-size: 0.95rem; font-weight: 600; margin-bottom: 3px; }
+    .future-item__content p { font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; }
+
+    /* ===== FOOTER ===== */
+    .site-footer { border-top: 1px solid var(--border); padding: clamp(36px, 5vw, 48px) 0 clamp(28px, 4vw, 36px); color: var(--text-muted); }
+    .footer-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; margin-bottom: 28px; }
+    .footer-brand { font-weight: 600; font-size: 0.95rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text); margin-bottom: 8px; }
+    .footer-tagline { font-size: 0.88rem; color: var(--text-muted); max-width: 300px; }
+    .footer-links { display: flex; gap: 24px; list-style: none; flex-wrap: wrap; }
+    .footer-links a { font-size: 0.85rem; color: var(--text-muted); text-decoration: none; min-height: 40px; display: inline-flex; align-items: center; }
+    .footer-links a:hover { color: var(--text); }
+    .footer-bottom { font-size: 0.78rem; color: var(--text-light); padding-top: 20px; border-top: 1px solid var(--border-light); }
+    @media (max-width: 680px) { .footer-top { flex-direction: column; } }
+
+    /* ===== AUTH MODAL ===== */
+    .auth-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 3000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(30, 33, 29, 0.55);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s var(--ease), visibility 0.25s var(--ease);
+    }
+    .auth-modal.is-active { opacity: 1; visibility: visible; }
+    .auth-modal__card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 24px 60px rgba(30, 33, 29, 0.22);
+      padding: 32px 28px 28px;
+      position: relative;
+      transform: translateY(14px) scale(0.98);
+      transition: transform 0.25s var(--ease);
+      max-height: 92vh;
+      overflow-y: auto;
+    }
+    .auth-modal.is-active .auth-modal__card { transform: translateY(0) scale(1); }
+    .auth-modal__close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: transparent;
+      border: none;
+      color: var(--text-light);
+      width: 34px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+    }
+    .auth-modal__close:hover { background: var(--surface-muted); color: var(--text); }
+
+    .auth-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+    .auth-brand span { font-family: var(--serif); font-size: 26px; }
+    .auth-tagline { color: var(--text-muted); font-size: 13.5px; margin-bottom: 20px; }
+
+    .tabs {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: var(--surface-muted);
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 20px;
+    }
+    .tabs button {
+      position: relative;
+      z-index: 1;
+      background: none;
+      border: 0;
+      padding: 9px 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-radius: 9px;
+      transition: color 0.2s;
+    }
+    .tabs button[aria-selected="true"] { color: var(--text); }
+    .tabs .pill {
+      position: absolute;
+      top: 4px;
+      bottom: 4px;
+      left: 4px;
+      width: calc(50% - 4px);
+      background: var(--surface);
+      border-radius: 9px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+      transition: transform 0.28s var(--ease);
+    }
+    .tabs.signup .pill { transform: translateX(100%); }
+
+    .auth-form { display: none; }
+    .auth-form.active { display: block; }
+    .auth-form h2 { font-size: 24px; margin-bottom: 4px; }
+    .auth-sub { color: var(--text-muted); font-size: 13.5px; margin-bottom: 18px; }
+
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+    .input-wrap { position: relative; }
+    .field input {
+      width: 100%;
+      padding: 11px 13px;
+      font: inherit;
+      font-size: 14.5px;
+      color: var(--text);
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .field input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(82, 107, 80, 0.18); }
+    .field input.invalid { border-color: var(--danger); }
+    .input-wrap input { padding-right: 42px; }
+    .eye {
+      position: absolute;
+      right: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: 0;
+      color: var(--text-muted);
+      padding: 7px;
+      border-radius: 8px;
+      display: flex;
+    }
+    .err { color: var(--danger); font-size: 12px; margin-top: 4px; }
+
+    .meter { display: flex; gap: 4px; margin-top: 8px; }
+    .meter i { flex: 1; height: 4px; border-radius: 2px; background: var(--border); transition: background 0.2s; }
+    .meter[data-s="1"] i:nth-child(-n+1) { background: #B4503F; }
+    .meter[data-s="2"] i:nth-child(-n+2) { background: #C28B2C; }
+    .meter[data-s="3"] i:nth-child(-n+3) { background: #7E9A57; }
+    .meter[data-s="4"] i:nth-child(-n+4) { background: var(--accent); }
+    .meter-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+    .row-check { display: flex; align-items: center; justify-content: space-between; font-size: 13px; margin-bottom: 16px; }
+    .check { display: flex; align-items: center; gap: 8px; color: var(--text-muted); cursor: pointer; }
+    .check input { width: 16px; height: 16px; accent-color: var(--accent); }
+
+    .auth-submit {
+      width: 100%;
+      padding: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      border: 0;
+      border-radius: 10px;
+      background: var(--accent-dark);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: background 0.15s;
+    }
+    .auth-submit:hover { background: var(--accent); }
+    .auth-submit:disabled { opacity: 0.7; cursor: progress; }
+
+    .alert { display: none; padding: 10px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 14px; }
+    .alert.show { display: block; }
+    .alert.error { background: var(--danger-bg); color: var(--danger); }
+    .alert.success { background: var(--ok-bg); color: var(--ok); }
+
+    .switch-auth { text-align: center; font-size: 13px; color: var(--text-muted); margin-top: 16px; }
+    .switch-link { background: none; border: 0; color: var(--accent-dark); font: inherit; font-weight: 600; text-decoration: underline; }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+      html { scroll-behavior: auto; }
+      .section { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- ===== 1. NAVIGATION ===== -->
+  <header class="site-header" role="banner">
+    <div class="wrap">
+      <nav class="nav" role="navigation" aria-label="Main navigation">
+        <a href="#" class="nav__brand" aria-label="Sonar — home">
+          <svg class="nav__mark" viewBox="0 0 28 28" aria-hidden="true">
+            <circle cx="14" cy="14" r="13" />
+            <circle cx="14" cy="14" r="9" />
+            <circle cx="14" cy="14" r="5" />
+            <circle cx="14" cy="14" r="2.5" />
+          </svg>
+          Sonar
+        </a>
+
+        <ul class="nav__links" id="navLinks" role="list">
+          <li><a href="#capabilities">Capabilities</a></li>
+          <li><a href="#how-it-works">How it works</a></li>
+          <li><a href="#technology">Technology</a></li>
+          <li><a href="#impact">Impact</a></li>
+        </ul>
+
+        <div class="nav__actions" id="navActions">
+          <button type="button" class="nav__btn nav__btn--ghost" data-auth-open="login">Log in</button>
+          <button type="button" class="nav__btn nav__btn--primary" data-auth-open="signup">Sign up</button>
+          <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round">
+              <path d="M3 12h18M3 6h18M3 18h18" />
+            </svg>
+          </button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content">
+
+    <!-- ===== 2. HERO ===== -->
+    <section class="hero wrap" aria-labelledby="hero-heading">
+      <div class="hero__content">
+        <p class="eyebrow">College major project · Assistive vision system</p>
+        <h1 id="hero-heading">See the world,<br />through sound.</h1>
+        <p class="hero__body">Sonar is an assistive vision system designed to help visually impaired users understand
+          their surroundings through real-time object detection, proximity awareness, OCR text reading, and spoken feedback.</p>
+        <p class="hero__note">Create a free account or log in to unlock the interactive camera demo and voice assistant.</p>
+        <div class="hero__actions">
+          <button type="button" class="btn btn--primary" data-auth-open="signup">Sign up to try the demo</button>
+          <button type="button" class="btn btn--secondary" data-auth-open="login">Log in</button>
+        </div>
+      </div>
+
+      <div class="hero__visual" aria-hidden="true">
+        <svg class="hero__illustration" viewBox="0 0 440 360" fill="none">
+          <g opacity="0.08">
+            <circle cx="220" cy="180" r="160" stroke="#1E211D" stroke-width="0.8" />
+            <circle cx="220" cy="180" r="120" stroke="#1E211D" stroke-width="0.6" />
+            <circle cx="220" cy="180" r="80" stroke="#1E211D" stroke-width="0.4" />
+          </g>
+          <g stroke="#1E211D" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="118" y="155" width="75" height="55" rx="14" />
+            <rect x="248" y="155" width="75" height="55" rx="14" />
+            <path d="M193 178 C205 168, 237 168, 248 178" />
+            <path d="M118 175 L96 168" />
+            <path d="M323 175 L345 168" />
+          </g>
+          <circle cx="157" cy="182" r="8" stroke="#526B50" stroke-width="1.5" fill="none" />
+          <circle cx="157" cy="182" r="3" fill="#526B50" opacity="0.4" />
+          <g stroke="#526B50" stroke-width="1.2" opacity="0.5" stroke-linecap="round">
+            <path d="M360 165 Q375 180, 360 195" />
+            <path d="M372 155 Q395 180, 372 205" />
+            <path d="M384 145 Q415 180, 384 215" />
+          </g>
+          <g font-family="Inter, sans-serif" font-size="11" fill="#686B63">
+            <rect x="80" y="260" width="72" height="24" rx="4" fill="#ECE9E0" />
+            <text x="88" y="276">person</text>
+            <rect x="180" y="280" width="56" height="24" rx="4" fill="#ECE9E0" />
+            <text x="188" y="296">chair</text>
+            <rect x="290" y="250" width="52" height="24" rx="4" fill="#ECE9E0" />
+            <text x="298" y="266">door</text>
+          </g>
+          <circle cx="130" cy="310" r="2.5" fill="#526B50" opacity="0.25" />
+          <circle cx="170" cy="320" r="2" fill="#526B50" opacity="0.2" />
+          <circle cx="280" cy="300" r="2.5" fill="#526B50" opacity="0.25" />
+          <circle cx="320" cy="315" r="2" fill="#526B50" opacity="0.2" />
+          <circle cx="220" cy="330" r="3" fill="#526B50" opacity="0.3" />
+        </svg>
+      </div>
+    </section>
+
+    <!-- ===== 3. AUTH-GATED DEMO NOTICE ===== -->
+    <section class="section section--alt" id="demo-access" aria-labelledby="gate-heading">
+      <div class="wrap">
+        <div class="gate-card">
+          <div>
+            <span class="gate-badge">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+              Authentication required for live demo
+            </span>
+            <h2 id="gate-heading">Unlock the interactive Sonar prototype</h2>
+            <p>To protect your detection logs, custom-trained objects, and voice preferences, the live camera demo is
+              available only after signing up or logging in. Once authenticated, you will immediately open the full
+              functional workspace.</p>
+            <div class="gate-actions">
+              <button type="button" class="btn btn--primary" data-auth-open="signup">Sign up &amp; launch demo</button>
+              <button type="button" class="btn btn--secondary" data-auth-open="login">Log in</button>
+            </div>
+          </div>
+
+          <div class="gate-preview" aria-hidden="true">
+            <div class="gate-preview__icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                <circle cx="12" cy="13" r="4" />
+              </svg>
+            </div>
+            <h3>Live Vision Workspace</h3>
+            <p>Sign up to access real-time COCO-SSD / YOLO detection, OCR text reading, voice commands, and proximity alerts.</p>
+            <div class="gate-features">
+              <span>Object Detection</span>
+              <span>Proximity Alerts</span>
+              <span>OCR Reader</span>
+              <span>Voice Commands</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 4. CAPABILITIES ===== -->
+    <section class="section" id="capabilities" aria-labelledby="cap-heading">
+      <div class="wrap">
+        <div class="cap-lead">
+          <div>
+            <p class="eyebrow">Core capabilities</p>
+            <h2 id="cap-heading">Real-time awareness</h2>
+            <p class="subtitle">Sonar translates visual information into spoken guidance — helping users navigate
+              spaces, identify objects, and read text independently.</p>
+          </div>
+          <div class="cap-lead__visual" aria-hidden="true">
+            <svg viewBox="0 0 320 240" fill="none">
+              <rect x="40" y="40" width="240" height="160" rx="8" stroke="#D9D6CC" stroke-width="1" />
+              <rect x="60" y="100" width="40" height="60" rx="3" stroke="#526B50" stroke-width="1.2" />
+              <text x="65" y="95" font-family="Inter" font-size="9" fill="#526B50">chair</text>
+              <rect x="140" y="70" width="30" height="70" rx="2" stroke="#526B50" stroke-width="1.2" />
+              <text x="140" y="65" font-family="Inter" font-size="9" fill="#526B50">person</text>
+              <rect x="220" y="90" width="40" height="60" rx="3" stroke="#526B50" stroke-width="1.2" />
+              <text x="222" y="85" font-family="Inter" font-size="9" fill="#526B50">table</text>
+              <line x1="160" y1="200" x2="80" y2="130" stroke="#D9D6CC" stroke-width="0.6" stroke-dasharray="3 4" />
+              <line x1="160" y1="200" x2="155" y2="140" stroke="#D9D6CC" stroke-width="0.6" stroke-dasharray="3 4" />
+              <line x1="160" y1="200" x2="240" y2="150" stroke="#D9D6CC" stroke-width="0.6" stroke-dasharray="3 4" />
+              <circle cx="160" cy="200" r="3" fill="#526B50" opacity="0.4" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="cap-list">
+          <div class="cap-item">
+            <div class="cap-item__num">01</div>
+            <h3>Object recognition</h3>
+            <p>Recognises common objects such as people, chairs, tables, doors, stairs, and vehicles — reporting what it
+              sees in plain language.</p>
+          </div>
+          <div class="cap-item">
+            <div class="cap-item__num">02</div>
+            <h3>Proximity awareness</h3>
+            <p>Uses distance information to identify nearby obstacles and provide timely warnings before they become
+              hazards.</p>
+          </div>
+          <div class="cap-item">
+            <div class="cap-item__num">03</div>
+            <h3>Spoken feedback</h3>
+            <p>Turns visual information into concise audio guidance — describing the scene, alerting to obstacles, and
+              reading text aloud.</p>
+          </div>
+          <div class="cap-item">
+            <div class="cap-item__num">04</div>
+            <h3>Text reading</h3>
+            <p>Reads signs, labels, and documents aloud using optical character recognition, helping users access printed
+              information.</p>
+          </div>
+          <div class="cap-item">
+            <div class="cap-item__num">05</div>
+            <h3>Voice interaction</h3>
+            <p>Lets the user ask for information naturally — "What's in front of me?" or "Read the sign" — using speech
+              recognition.</p>
+          </div>
+          <div class="cap-item">
+            <div class="cap-item__num">06</div>
+            <h3>Personal memory</h3>
+            <p>Allows objects and faces to be personalised and remembered, so the system can greet familiar people or
+              locate known items.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 5. HOW IT WORKS ===== -->
+    <section class="section section--alt" id="how-it-works" aria-labelledby="how-heading">
+      <div class="wrap">
+        <div style="text-align:center;max-width:600px;margin:0 auto;">
+          <p class="eyebrow">System architecture</p>
+          <h2 id="how-heading">How Sonar understands the world</h2>
+          <p class="subtitle" style="margin:0 auto;">Three parallel pipelines work together — turning visual input,
+            spatial data, and voice commands into meaningful audio guidance.</p>
+        </div>
+
+        <div class="process-grid">
+          <div class="process-col">
+            <div class="process-col__title">Vision pipeline</div>
+            <div class="process-step">
+              <div class="process-node" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                  <circle cx="12" cy="13" r="4" />
+                </svg>
+              </div>
+              <span class="process-label">Camera input</span>
+              <span class="process-desc">Captures the visual scene</span>
+              <div class="process-arrow" aria-hidden="true"></div>
+              <div class="process-node" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                  <line x1="3" y1="9" x2="21" y2="9" />
+                  <line x1="9" y1="3" x2="9" y2="21" />
+                </svg>
+              </div>
+              <span class="process-label">Object detection</span>
+              <span class="process-desc">Identifies and locates objects</span>
+              <div class="process-arrow" aria-hidden="true"></div>
+              <div class="process-node" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M11 5L6 9H2v6h4l5 4V5z" />
+                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                </svg>
+              </div>
+              <span class="process-label">Audio description</span>
+              <span class="process-desc">Speaks what it sees</span>
+            </div>
+          </div>
+
+          <div class="process-col">
+            <div class="process-col__title">Proximity pipeline</div>
+            <div class="process-step">
+              <div class="process-node" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M12 6v6l4 2" />
+                </svg>
+              </div>
+              <span class="process-label">Distance sensor</span>
+              <span class="process-desc">Measures proximity to objects</span>
+              <div class="process-arrow" aria-hidden="true"></div>
+              <div class="process-node" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                </svg>
+              </div>
+              <span class="process-label">Distance analysis</span>
+              <span class="process-desc">Evaluates obstacle risk</span>
+              <div class="process-arrow" aria-hidden="true"></div>
+              <div class="process-node" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                  <line x1="12" y1="9" x2="12" y2="13" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+              </div>
+              <span class="process-label">Proximity alert</span>
+              <span class="process-desc">Warns of nearby obstacles</span>
+            </div>
+          </div>
+
+          <div class="process-col">
+            <div class="process-col__title">Voice pipeline</div>
+            <div class="process-step">
+              <div class="process-node" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                  <line x1="12" y1="19" x2="12" y2="23" />
+                  <line x1="8" y1="23" x2="16" y2="23" />
+                </svg>
+              </div>
+              <span class="process-label">Microphone</span>
+              <span class="process-desc">Listens for voice commands</span>
+              <div class="process-arrow" aria-hidden="true"></div>
+              <div class="process-node" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+              </div>
+              <span class="process-label">Speech recognition</span>
+              <span class="process-desc">Parses user intent</span>
+              <div class="process-arrow" aria-hidden="true"></div>
+              <div class="process-node" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <polyline points="9 11 12 14 22 4" />
+                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                </svg>
+              </div>
+              <span class="process-label">Action</span>
+              <span class="process-desc">Executes the request</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 6. REAL-WORLD SCENARIOS ===== -->
+    <section class="section" id="scenarios" aria-labelledby="scenarios-heading">
+      <div class="wrap">
+        <p class="eyebrow">In practice</p>
+        <h2 id="scenarios-heading">What Sonar helps you do</h2>
+        <p class="subtitle">Real situations where spoken environmental awareness makes a meaningful difference.</p>
+
+        <div class="scenarios-grid">
+          <article class="scenario-card">
+            <div class="scenario-card__icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                <polyline points="9 22 9 12 15 12 15 22" />
+              </svg>
+            </div>
+            <h3>Walking through a new building</h3>
+            <p>Navigating unfamiliar indoor spaces with confidence — knowing where doorways, stairs, and furniture are
+              located.</p>
+            <div class="scenario-card__quote">"Door ahead. Stairs to your right."</div>
+          </article>
+
+          <article class="scenario-card">
+            <div class="scenario-card__icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+            </div>
+            <h3>Finding an object</h3>
+            <p>Locating personal belongings by asking the system to scan the room and report where common objects are.</p>
+            <div class="scenario-card__quote">"Your backpack is on the chair."</div>
+          </article>
+
+          <article class="scenario-card">
+            <div class="scenario-card__icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+              </svg>
+            </div>
+            <h3>Reading something</h3>
+            <p>Accessing printed information — bus numbers, street signs, product labels, menus — by pointing the camera
+              and asking.</p>
+            <div class="scenario-card__quote">"Bus route 312."</div>
+          </article>
+
+          <article class="scenario-card">
+            <div class="scenario-card__icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+            </div>
+            <h3>Moving through a busy space</h3>
+            <p>Receiving continuous updates about nearby people and open paths — making crowded environments less
+              overwhelming.</p>
+            <div class="scenario-card__quote">"Three people ahead. Open path on your left."</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 7. TECHNOLOGY ===== -->
+    <section class="section section--alt" id="technology" aria-labelledby="tech-heading">
+      <div class="wrap">
+        <div style="max-width:600px;">
+          <p class="eyebrow">Architecture</p>
+          <h2 id="tech-heading">Built with proven, accessible technology</h2>
+          <p class="subtitle">The proposed wearable system uses established open-source components. The authenticated web
+            prototype substitutes equivalent browser technologies for the same pipeline.</p>
+        </div>
+
+        <div class="tech-cols">
+          <div class="tech-col">
+            <div class="tech-col__header">Hardware (proposed wearable)</div>
+            <div class="tech-item">
+              <span class="tech-item__name">Raspberry Pi 4</span>
+              <span class="tech-item__desc">Central processing unit running all detection and feedback modules</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-item__name">8MP Camera Module</span>
+              <span class="tech-item__desc">Captures the visual scene for object detection and OCR</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-item__name">HC-SR04 Sensor</span>
+              <span class="tech-item__desc">Ultrasonic distance measurement for obstacle detection (20–400 cm)</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-item__name">Bone Conduction</span>
+              <span class="tech-item__desc">Headphones that deliver audio without blocking ambient sounds</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-item__name">Battery Pack</span>
+              <span class="tech-item__desc">20,000 mAh rechargeable battery for portable operation</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-item__name">Push Buttons</span>
+              <span class="tech-item__desc">Physical controls for mode switching and quick actions</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-item__name">Buzzer</span>
+              <span class="tech-item__desc">Tactile audio alerts for proximity warnings</span>
+            </div>
+          </div>
+
+          <div class="tech-col">
+            <div class="tech-col__header">Software stack</div>
+            <div class="tech-item">
+              <span class="tech-item__name">YOLOv8 / COCO-SSD</span>
+              <span class="tech-item__desc">Real-time object detection on wearable and via TensorFlow.js in the browser</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-item__name">OpenCV</span>
+              <span class="tech-item__desc">Image processing and frame preparation</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-item__name">TensorFlow Lite</span>
+              <span class="tech-item__desc">Optimised inference on edge hardware; TensorFlow.js in the browser</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-item__name">FaceNet</span>
+              <span class="tech-item__desc">Face recognition for personalised identification</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-item__name">Tesseract OCR</span>
+              <span class="tech-item__desc">Optical character recognition for reading text; Tesseract.js in the browser</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-item__name">Whisper / Web Speech</span>
+              <span class="tech-item__desc">Speech-to-text for voice commands and text-to-speech for audio feedback</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-item__name">SQLite &amp; JWT Auth</span>
+              <span class="tech-item__desc">Encrypted user accounts, detection history, and personalisation settings</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 8. PRIVACY ===== -->
+    <section class="section" id="privacy" aria-labelledby="privacy-heading">
+      <div class="wrap">
+        <div class="privacy-block">
+          <div class="privacy-icon" aria-hidden="true">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+          </div>
+          <h2 id="privacy-heading">Your surroundings should stay yours.</h2>
+          <p>Sonar is designed around on-device vision processing, keeping camera frames local while using secure
+            authentication to protect your personal preferences, custom-taught objects, and session logs.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 9. PROJECT METRICS ===== -->
+    <section class="section section--alt" id="impact" aria-labelledby="metrics-heading">
+      <div class="wrap">
+        <div style="text-align:center;max-width:600px;margin:0 auto;">
+          <p class="eyebrow">Expected outcomes</p>
+          <h2 id="metrics-heading">Project targets</h2>
+          <p class="subtitle" style="margin:0 auto;">These figures represent the expected performance described in the
+            project proposal — targets for the fully developed system.</p>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric">
+            <div class="metric__value">90–96%</div>
+            <div class="metric__label">Object detection accuracy</div>
+            <div class="metric__note">expected</div>
+          </div>
+          <div class="metric">
+            <div class="metric__value">1–2 s</div>
+            <div class="metric__label">Response latency</div>
+            <div class="metric__note">expected</div>
+          </div>
+          <div class="metric">
+            <div class="metric__value">20–150 cm</div>
+            <div class="metric__label">Obstacle alert threshold</div>
+            <div class="metric__note">configurable range</div>
+          </div>
+          <div class="metric">
+            <div class="metric__value">₹11–12k</div>
+            <div class="metric__label">Estimated system cost</div>
+            <div class="metric__note">full hardware build</div>
+          </div>
+          <div class="metric">
+            <div class="metric__value">85–95%</div>
+            <div class="metric__label">Voice command accuracy</div>
+            <div class="metric__note">expected</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 10. FUTURE ===== -->
+    <section class="section" id="future" aria-labelledby="future-heading">
+      <div class="wrap">
+        <p class="eyebrow">Looking ahead</p>
+        <h2 id="future-heading">Where this could go</h2>
+        <p class="subtitle">The project proposal identifies several directions for extending Sonar's capabilities beyond
+          the initial prototype.</p>
+
+        <div class="future-list">
+          <div class="future-item">
+            <div class="future-item__marker" aria-hidden="true"></div>
+            <div class="future-item__content">
+              <h3>Improved vision models</h3>
+              <p>Adopting newer, more accurate detection architectures as they become available for edge deployment.</p>
+            </div>
+          </div>
+          <div class="future-item">
+            <div class="future-item__marker" aria-hidden="true"></div>
+            <div class="future-item__content">
+              <h3>Semantic scene understanding</h3>
+              <p>Moving beyond individual object labels to describe spatial relationships and overall scene context.</p>
+            </div>
+          </div>
+          <div class="future-item">
+            <div class="future-item__marker" aria-hidden="true"></div>
+            <div class="future-item__content">
+              <h3>Depth cameras &amp; LiDAR</h3>
+              <p>Replacing ultrasonic sensors with LiDAR or structured-light depth cameras for richer 3D spatial data.</p>
+            </div>
+          </div>
+          <div class="future-item">
+            <div class="future-item__marker" aria-hidden="true"></div>
+            <div class="future-item__content">
+              <h3>GPS &amp; IMU integration</h3>
+              <p>Adding location awareness and inertial measurement for outdoor navigation and route guidance.</p>
+            </div>
+          </div>
+          <div class="future-item">
+            <div class="future-item__marker" aria-hidden="true"></div>
+            <div class="future-item__content">
+              <h3>Companion mobile application</h3>
+              <p>A smartphone app for remote monitoring, configuration, and extending system reach beyond the wearable device.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== 11. FOOTER ===== -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="wrap">
+      <div class="footer-top">
+        <div>
+          <div class="footer-brand">Sonar</div>
+          <p class="footer-tagline">College major project · Assistive technology for a more navigable world.</p>
+        </div>
+        <ul class="footer-links" role="list">
+          <li><a href="#capabilities">Capabilities</a></li>
+          <li><a href="#how-it-works">How it works</a></li>
+          <li><a href="#technology">Technology</a></li>
+          <li><a href="#impact">Impact</a></li>
+        </ul>
+      </div>
+      <div class="footer-bottom">
+        College Major Project · Built with TensorFlow.js, Tesseract.js &amp; Web Speech API · Sign up or log in to launch the live prototype.
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===== AUTH MODAL (SIGN UP / LOG IN) ===== -->
+  <div class="auth-modal" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authModalHeading" tabindex="-1">
+    <div class="auth-modal__card">
+      <button type="button" class="auth-modal__close" id="closeAuthModal" aria-label="Close authentication dialog">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+
+      <div class="auth-brand">
+        <svg width="30" height="30" viewBox="0 0 34 34" fill="none" aria-hidden="true">
+          <circle cx="17" cy="17" r="3.5" fill="#526B50" />
+          <circle cx="17" cy="17" r="8.5" stroke="#526B50" stroke-width="2" opacity=".7" />
+          <circle cx="17" cy="17" r="14" stroke="#526B50" stroke-width="2" opacity=".35" />
+        </svg>
+        <span>Sonar</span>
+      </div>
+      <p class="auth-tagline">Sign up or log in to open the live Sonar demo.</p>
+
+      <div class="tabs" id="tabs" role="tablist">
+        <span class="pill"></span>
+        <button type="button" role="tab" id="tab-login" aria-selected="true" aria-controls="loginForm">Log in</button>
+        <button type="button" role="tab" id="tab-signup" aria-selected="false" aria-controls="signupForm">Sign up</button>
+      </div>
+
+      <div class="alert" id="alert" role="alert" aria-live="polite"></div>
+
+      <!-- LOG IN -->
+      <form id="loginForm" class="auth-form active" novalidate>
+        <h2 id="authModalHeading">Welcome back</h2>
+        <p class="auth-sub">Log in to launch the functional Sonar demo.</p>
+
+        <div class="field">
+          <label for="loginEmail">Email</label>
+          <input id="loginEmail" type="email" autocomplete="email" placeholder="you@example.com" />
+          <div class="err" data-for="loginEmail"></div>
+        </div>
+        <div class="field">
+          <label for="loginPassword">Password</label>
+          <div class="input-wrap">
+            <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Your password" />
+            <button type="button" class="eye" data-target="loginPassword" aria-label="Show password"></button>
+          </div>
+          <div class="err" data-for="loginPassword"></div>
+        </div>
+        <div class="row-check">
+          <label class="check"><input type="checkbox" id="remember" checked /> Remember me</label>
+        </div>
+        <button class="auth-submit" type="submit" id="loginBtn">Log in &amp; open demo</button>
+        <div class="switch-auth">New to Sonar? <button type="button" class="switch-link" data-go="signup">Create an account</button></div>
+      </form>
+
+      <!-- SIGN UP -->
+      <form id="signupForm" class="auth-form" novalidate>
+        <h2>Create your account</h2>
+        <p class="auth-sub">Sign up to unlock the full Sonar experience and demo.</p>
+
+        <div class="field">
+          <label for="regName">Username</label>
+          <input id="regName" type="text" autocomplete="username" placeholder="Your name" />
+          <div class="err" data-for="regName"></div>
+        </div>
+        <div class="field">
+          <label for="regEmail">Email</label>
+          <input id="regEmail" type="email" autocomplete="email" placeholder="you@example.com" />
+          <div class="err" data-for="regEmail"></div>
+        </div>
+        <div class="field">
+          <label for="regPassword">Password</label>
+          <div class="input-wrap">
+            <input id="regPassword" type="password" autocomplete="new-password" placeholder="At least 6 characters" />
+            <button type="button" class="eye" data-target="regPassword" aria-label="Show password"></button>
+          </div>
+          <div class="meter" id="meter" data-s="0"><i></i><i></i><i></i><i></i></div>
+          <div class="meter-label" id="meterLabel">&nbsp;</div>
+          <div class="err" data-for="regPassword"></div>
+        </div>
+        <div class="field">
+          <label for="regConfirm">Confirm password</label>
+          <input id="regConfirm" type="password" autocomplete="new-password" placeholder="Repeat password" />
+          <div class="err" data-for="regConfirm"></div>
+        </div>
+        <button class="auth-submit" type="submit" id="signupBtn">Sign up &amp; open demo</button>
+        <div class="switch-auth">Already have an account? <button type="button" class="switch-link" data-go="login">Log in</button></div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const REDIRECT_URL = 'sonar.html';
+      const USERS_KEY = 'sonar_users_local';
+      const API_BASE = (window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'capacitor:')
+        ? 'http://localhost:5050'
+        : '';
+
+      const $ = (s, r = document) => r.querySelector(s);
+      const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+      // Handle explicit logout redirect
+      if (location.search.includes('logout')) {
+        localStorage.removeItem('sonar_token');
+        localStorage.removeItem('sonar_user');
+        sessionStorage.removeItem('sonar_token');
+        sessionStorage.removeItem('sonar_user');
+        sessionStorage.removeItem('sonar_guest');
+        sessionStorage.removeItem('sonar_session_only');
+        history.replaceState(null, '', location.pathname);
+      }
+
+      // Mobile nav toggle
+      const navToggle = $('#navToggle');
+      const navLinks = $('#navLinks');
+      if (navToggle && navLinks) {
+        navToggle.addEventListener('click', () => {
+          const open = navLinks.classList.toggle('is-open');
+          navToggle.setAttribute('aria-expanded', open);
+        });
+        $$('a', navLinks).forEach(a => a.addEventListener('click', () => {
+          navLinks.classList.remove('is-open');
+          navToggle.setAttribute('aria-expanded', 'false');
+        }));
+      }
+
+      // Section reveal
+      const sections = $$('.section');
+      const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            revealObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+      sections.forEach(s => revealObserver.observe(s));
+
+      // Auth modal elements
+      const authModal = $('#authModal');
+      const closeAuthModal = $('#closeAuthModal');
+      const tabs = $('#tabs');
+      const alertBox = $('#alert');
+      const forms = { login: $('#loginForm'), signup: $('#signupForm') };
+
+      const EYE = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+      const EYE_OFF = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+
+      const store = {
+        get(k, fallback) { try { const v = localStorage.getItem(k); return v === null ? fallback : JSON.parse(v); } catch { return fallback; } },
+        set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch { return false; } }
+      };
+
+      async function hash(text) {
+        try {
+          const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('sonar:' + text));
+          return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+        } catch {
+          let h = 5381; for (const c of 'sonar:' + text) h = ((h << 5) + h + c.charCodeAt(0)) >>> 0;
+          return 'f' + h.toString(16);
+        }
+      }
+      const token = () => Array.from(crypto.getRandomValues(new Uint8Array(24)), b => b.toString(16).padStart(2, '0')).join('');
+      const validEmail = e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+
+      function showAlert(msg, type = 'error') {
+        alertBox.className = 'alert' + (msg ? ' show ' + type : '');
+        alertBox.textContent = msg;
+      }
+      function fieldError(id, msg) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.toggle('invalid', !!msg);
+        const errEl = $(`.err[data-for="${id}"]`);
+        if (errEl) errEl.textContent = msg || '';
+      }
+      function clearErrors() {
+        $$('input', authModal).forEach(i => i.classList.remove('invalid'));
+        $$('.err', authModal).forEach(e => e.textContent = '');
+      }
+      $$('input', authModal).forEach(i => i.addEventListener('input', () => fieldError(i.id, '')));
+
+      function switchTo(which) {
+        const isSignup = which === 'signup';
+        tabs.classList.toggle('signup', isSignup);
+        $('#tab-login').setAttribute('aria-selected', String(!isSignup));
+        $('#tab-signup').setAttribute('aria-selected', String(isSignup));
+        forms.login.classList.toggle('active', !isSignup);
+        forms.signup.classList.toggle('active', isSignup);
+        showAlert('');
+        clearErrors();
+        setTimeout(() => {
+          (isSignup ? $('#regName') : $('#loginEmail')).focus();
+        }, 60);
+      }
+
+      function openModal(mode = 'login') {
+        switchTo(mode);
+        authModal.classList.add('is-active');
+      }
+      function closeModal() {
+        authModal.classList.remove('is-active');
+      }
+
+      $$('[data-auth-open]').forEach(btn => {
+        btn.addEventListener('click', () => openModal(btn.dataset.authOpen));
+      });
+      $('#tab-login').onclick = () => switchTo('login');
+      $('#tab-signup').onclick = () => switchTo('signup');
+      $$('[data-go]').forEach(b => b.onclick = () => switchTo(b.dataset.go));
+      closeAuthModal.onclick = closeModal;
+      authModal.addEventListener('click', (e) => { if (e.target === authModal) closeModal(); });
+      window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && authModal.classList.contains('is-active')) closeModal(); });
+
+      // Show/hide password
+      $$('.eye').forEach(btn => {
+        btn.innerHTML = EYE;
+        btn.onclick = () => {
+          const input = document.getElementById(btn.dataset.target);
+          if (!input) return;
+          const show = input.type === 'password';
+          input.type = show ? 'text' : 'password';
+          btn.innerHTML = show ? EYE_OFF : EYE;
+          btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+        };
+      });
+
+      // Password strength meter
+      $('#regPassword').addEventListener('input', e => {
+        const p = e.target.value;
+        let s = 0;
+        if (p.length >= 6) s++;
+        if (p.length >= 10) s++;
+        if (/[A-Z]/.test(p) && /[a-z]/.test(p)) s++;
+        if (/\d/.test(p) && /[^A-Za-z0-9]/.test(p)) s++;
+        if (!p) s = 0;
+        $('#meter').dataset.s = s;
+        $('#meterLabel').textContent = p ? ['Too short', 'Weak', 'Fair', 'Good', 'Strong'][s] : '\u00A0';
+      });
+
+      function setLoading(btn, on, label) {
+        btn.disabled = on;
+        btn.innerHTML = on ? '<span class="spinner"></span><span>Please wait…</span>' : label;
+      }
+
+      function startSession(user, persist, userToken = null) {
+        const t = userToken || token();
+        const publicUser = { id: user.id, username: user.username, email: user.email };
+        localStorage.setItem('sonar_token', t);
+        localStorage.setItem('sonar_user', JSON.stringify(publicUser));
+        sessionStorage.removeItem('sonar_guest');
+        if (!persist) sessionStorage.setItem('sonar_session_only', '1');
+        else sessionStorage.removeItem('sonar_session_only');
+      }
+
+      function goToSonar(msg) {
+        showAlert(msg, 'success');
+        document.body.style.pointerEvents = 'none';
+        setTimeout(() => { window.location.href = REDIRECT_URL; }, 650);
+      }
+
+      // Update header if user already has an active session
+      if (localStorage.getItem('sonar_token') && localStorage.getItem('sonar_user')) {
+        const navActions = $('#navActions');
+        const toggleHtml = navToggle ? navToggle.outerHTML : '';
+        navActions.innerHTML = `
+          <a href="${REDIRECT_URL}" class="nav__btn nav__btn--primary" style="text-decoration:none;">Open Demo</a>
+          <button type="button" class="nav__btn nav__btn--ghost" id="headerLogoutBtn">Log out</button>
+          ${toggleHtml}
+        `;
+        const newToggle = $('#navToggle');
+        if (newToggle && navLinks) {
+          newToggle.addEventListener('click', () => {
+            const open = navLinks.classList.toggle('is-open');
+            newToggle.setAttribute('aria-expanded', open);
+          });
+        }
+        $('#headerLogoutBtn').addEventListener('click', () => {
+          localStorage.removeItem('sonar_token');
+          localStorage.removeItem('sonar_user');
+          sessionStorage.clear();
+          window.location.reload();
+        });
+      }
+
+      // LOG IN
+      forms.login.addEventListener('submit', async e => {
+        e.preventDefault();
+        showAlert(''); clearErrors();
+        const email = $('#loginEmail').value.trim().toLowerCase();
+        const pw = $('#loginPassword').value;
+        let bad = false;
+        if (!validEmail(email)) { fieldError('loginEmail', 'Enter a valid email address.'); bad = true; }
+        if (!pw) { fieldError('loginPassword', 'Enter your password.'); bad = true; }
+        if (bad) return;
+
+        const btn = $('#loginBtn');
+        setLoading(btn, true);
+
+        try {
+          const res = await fetch(`${API_BASE}/api/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password: pw })
+          });
+          const data = await res.json();
+          if (res.ok && data.token && data.user) {
+            startSession(data.user, $('#remember').checked, data.token);
+            goToSonar('Welcome back, ' + data.user.username + '! Opening Sonar…');
+            return;
+          } else if (res.status === 400 || res.status === 401) {
+            setLoading(btn, false, 'Log in & open demo');
+            showAlert(data.error || 'Incorrect email or password.');
+            return;
+          }
+        } catch (_) {
+          // Offline fallback
+        }
+
+        await new Promise(r => setTimeout(r, 350));
+        const users = store.get(USERS_KEY, []);
+        const user = users.find(u => u.email === email);
+        if (!user || user.hash !== await hash(pw)) {
+          setLoading(btn, false, 'Log in & open demo');
+          showAlert('Incorrect email or password.');
+          return;
+        }
+        startSession(user, $('#remember').checked);
+        goToSonar('Welcome back, ' + user.username + '! Opening Sonar…');
+      });
+
+      // SIGN UP
+      forms.signup.addEventListener('submit', async e => {
+        e.preventDefault();
+        showAlert(''); clearErrors();
+        const username = $('#regName').value.trim();
+        const email = $('#regEmail').value.trim().toLowerCase();
+        const pw = $('#regPassword').value;
+        const confirm = $('#regConfirm').value;
+        let bad = false;
+        if (username.length < 2) { fieldError('regName', 'Username must be at least 2 characters.'); bad = true; }
+        if (!validEmail(email)) { fieldError('regEmail', 'Enter a valid email address.'); bad = true; }
+        if (pw.length < 6) { fieldError('regPassword', 'Password must be at least 6 characters.'); bad = true; }
+        if (confirm !== pw) { fieldError('regConfirm', 'Passwords do not match.'); bad = true; }
+        if (bad) return;
+
+        const btn = $('#signupBtn');
+        setLoading(btn, true);
+
+        try {
+          const res = await fetch(`${API_BASE}/api/auth/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, email, password: pw })
+          });
+          const data = await res.json();
+          if (res.ok && data.token && data.user) {
+            startSession(data.user, true, data.token);
+            goToSonar('Account created! Opening Sonar…');
+            return;
+          } else if (res.status === 400) {
+            setLoading(btn, false, 'Sign up & open demo');
+            showAlert(data.error || 'Registration failed.');
+            return;
+          }
+        } catch (_) {
+          // Offline fallback
+        }
+
+        await new Promise(r => setTimeout(r, 350));
+        const users = store.get(USERS_KEY, []);
+        if (users.some(u => u.email === email)) {
+          setLoading(btn, false, 'Sign up & open demo');
+          fieldError('regEmail', 'An account with this email already exists.');
+          return;
+        }
+        const user = { id: token().slice(0, 12), username, email, hash: await hash(pw), created: Date.now() };
+        users.push(user);
+        if (!store.set(USERS_KEY, users)) {
+          setLoading(btn, false, 'Sign up & open demo');
+          showAlert('Could not save your account. Is browser storage disabled?');
+          return;
+        }
+        startSession(user, true);
+        goToSonar('Account created! Opening Sonar…');
+      });
+
+      // Deep link support (?auth=login or #signup)
+      if (location.hash === '#signup' || location.search.includes('auth=signup')) {
+        openModal('signup');
+      } else if (location.hash === '#login' || location.search.includes('auth=login')) {
+        openModal('login');
+      }
+    })();
+  </script>
+</body>
+
+</html>

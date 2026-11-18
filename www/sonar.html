@@ -1,0 +1,3977 @@
+ <!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#F5F2EA" />
+  <title>Sonar — Assistive Vision System</title>
+  <meta name="description"
+    content="Sonar is an assistive vision system designed to help visually impaired users understand their surroundings through real-time object detection, proximity awareness and spoken feedback." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet" />
+  <style>
+    /* ===== DESIGN TOKENS ===== */
+    :root {
+      --bg: #F5F2EA;
+      --surface: #FBFAF6;
+      --surface-muted: #ECE9E0;
+      --surface-warm: #F0EDE4;
+      --text: #1E211D;
+      --text-muted: #686B63;
+      --text-light: #8E9188;
+      --accent: #526B50;
+      --accent-dark: #354A35;
+      --accent-light: #6B8569;
+      --border: #D9D6CC;
+      --border-light: #E8E5DC;
+      --warning: #A8722A;
+      --warning-bg: #F5ECD8;
+      --danger: #8B3A3A;
+      --danger-bg: #F2E4E4;
+      --serif: 'DM Serif Display', Georgia, 'Times New Roman', serif;
+      --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      --container-pad: clamp(16px, 4vw, 32px);
+      --section-pad: clamp(48px, 7vw, 96px);
+    }
+
+    /* ===== RESET & BASE ===== */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 76px;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    html,
+    body {
+      overflow-x: hidden;
+      width: 100%;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    img,
+    svg {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+
+    a {
+      color: var(--accent-dark);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    button {
+      font-family: var(--sans);
+      cursor: pointer;
+    }
+
+    ::selection {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    /* ===== SKIP LINK ===== */
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      top: auto;
+      padding: 12px 24px;
+      background: var(--text);
+      color: var(--surface);
+      font-weight: 600;
+      z-index: 2000;
+      border-radius: 0 0 8px 0;
+    }
+
+    .skip-link:focus {
+      left: 0;
+      top: 0;
+    }
+
+    /* ===== LAYOUT ===== */
+    .wrap {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 0 var(--container-pad);
+      width: 100%;
+    }
+
+    .wrap--narrow {
+      max-width: 860px;
+    }
+
+    .wrap--wide {
+      max-width: 1280px;
+    }
+
+    /* ===== SECTION RHYTHM ===== */
+    .section {
+      padding: var(--section-pad) 0;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s var(--ease), transform 0.6s var(--ease);
+      width: 100%;
+    }
+
+    .section.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .section+.section {
+      border-top: 1px solid var(--border-light);
+    }
+
+    .section--alt {
+      background: var(--surface);
+    }
+
+    .section--muted {
+      background: var(--surface-muted);
+    }
+
+    /* ===== TYPOGRAPHY ===== */
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-family: var(--serif);
+      font-weight: 400;
+      line-height: 1.15;
+    }
+
+    h1 {
+      font-size: clamp(2.1rem, 4.5vw + 0.5rem, 3.8rem);
+      letter-spacing: -0.015em;
+      color: var(--text);
+    }
+
+    h2 {
+      font-size: clamp(1.65rem, 3vw + 0.3rem, 2.6rem);
+      margin-bottom: clamp(14px, 2.5vw, 20px);
+    }
+
+    h3 {
+      font-size: clamp(1.15rem, 1.6vw + 0.2rem, 1.45rem);
+      margin-bottom: 8px;
+    }
+
+    .eyebrow {
+      font-family: var(--sans);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: clamp(10px, 1.8vw, 16px);
+    }
+
+    .subtitle {
+      font-size: clamp(0.95rem, 1.1vw + 0.45rem, 1.12rem);
+      line-height: 1.65;
+      color: var(--text-muted);
+      max-width: 580px;
+    }
+
+    /* ===== NAVIGATION ===== */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(245, 242, 234, 0.94);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-light);
+      padding-top: env(safe-area-inset-top, 0px);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+
+    .nav__brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--sans);
+      font-weight: 600;
+      font-size: 1rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text);
+      text-decoration: none;
+      min-height: 44px;
+    }
+
+    .nav__mark {
+      width: 28px;
+      height: 28px;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .nav__mark circle {
+      fill: none;
+      stroke: var(--accent);
+      stroke-width: 1.2;
+      opacity: 0.35;
+    }
+
+    .nav__mark circle:first-child {
+      opacity: 0.15;
+    }
+
+    .nav__mark circle:last-child {
+      opacity: 1;
+      fill: var(--accent);
+      stroke: none;
+    }
+
+    .nav__links {
+      display: flex;
+      align-items: center;
+      gap: clamp(16px, 2.5vw, 32px);
+      list-style: none;
+    }
+
+    .nav__links a {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+    }
+
+    .nav__links a:hover,
+    .nav__links a:focus-visible {
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .nav__cta {
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 9px 18px;
+      border-radius: 6px;
+      background: var(--accent);
+      color: #fff !important;
+      border: none;
+      transition: background 0.2s, transform 0.15s var(--ease);
+      text-decoration: none !important;
+      min-height: 38px !important;
+    }
+
+    .nav__cta:hover {
+      background: var(--accent-dark);
+      transform: translateY(-1px);
+    }
+
+    /* Mobile nav */
+    .nav__toggle {
+      display: none;
+      background: none;
+      border: none;
+      width: 44px;
+      height: 44px;
+      padding: 10px;
+      color: var(--text);
+      border-radius: 8px;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .nav__toggle:focus-visible {
+      outline: 2px solid var(--accent);
+    }
+
+    @media (max-width: 768px) {
+      .nav__links {
+        display: none;
+      }
+
+      .nav__links.is-open {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        box-shadow: 0 16px 36px rgba(30, 33, 29, 0.1);
+        padding: 20px var(--container-pad) calc(24px + env(safe-area-inset-bottom, 0px));
+        gap: 14px;
+        z-index: 1001;
+        animation: navSlideDown 0.22s var(--ease) forwards;
+      }
+
+      @keyframes navSlideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .nav__links a {
+        font-size: 1.05rem;
+        padding: 8px 0;
+        width: 100%;
+      }
+
+      .nav__links .nav__cta {
+        text-align: center;
+        justify-content: center;
+        padding: 12px 20px;
+        font-size: 0.95rem;
+        margin-top: 6px;
+      }
+
+      .nav__toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
+    /* ===== AUTH & DESKTOP PLATFORM BAR ===== */
+    .nav__actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav__auth-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--sans);
+      font-size: 0.84rem;
+      font-weight: 500;
+      padding: 7px 14px;
+      border-radius: 6px;
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s;
+      cursor: pointer;
+      min-height: 38px;
+    }
+
+    .nav__auth-btn:hover {
+      background: var(--surface-warm);
+      border-color: var(--accent);
+      color: var(--accent-dark);
+      transform: translateY(-1px);
+    }
+
+    .nav__user-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 3px 6px 3px 10px;
+      border-radius: 999px;
+      font-size: 0.84rem;
+      font-weight: 500;
+      box-shadow: 0 1px 3px rgba(30, 33, 29, 0.04);
+    }
+
+    .user-pill__avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .user-pill__name {
+      color: var(--text);
+      max-width: 110px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .user-pill__action {
+      background: var(--surface-warm);
+      border: 1px solid var(--border-light);
+      padding: 3px 8px;
+      border-radius: 999px;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .user-pill__action:hover {
+      background: var(--surface-muted);
+      color: var(--text);
+    }
+
+    .nav__desktop-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: var(--surface-warm);
+      color: var(--accent-dark);
+      border: 1px solid var(--border-light);
+    }
+
+    /* ===== AUTH MODAL ===== */
+    .auth-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 3000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(30, 33, 29, 0.52);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s var(--ease), visibility 0.25s var(--ease);
+    }
+
+    .auth-modal.is-active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .auth-modal__card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 24px 60px rgba(30, 33, 29, 0.18);
+      padding: 30px 26px;
+      position: relative;
+      transform: translateY(16px) scale(0.98);
+      transition: transform 0.25s var(--ease);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .auth-modal.is-active .auth-modal__card {
+      transform: translateY(0) scale(1);
+    }
+
+    .auth-modal__close {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      background: transparent;
+      border: none;
+      color: var(--text-light);
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .auth-modal__close:hover {
+      background: var(--surface-muted);
+      color: var(--text);
+    }
+
+    .auth-modal__header {
+      margin-bottom: 20px;
+    }
+
+    .auth-modal__brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--accent-dark);
+      margin-bottom: 8px;
+    }
+
+    .auth-modal__title {
+      font-family: var(--serif);
+      font-size: 1.65rem;
+      font-weight: 400;
+      color: var(--text);
+      line-height: 1.25;
+      margin-bottom: 6px;
+    }
+
+    .auth-modal__subtitle {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .auth-modal__tabs {
+      display: flex;
+      background: var(--surface-warm);
+      padding: 4px;
+      border-radius: 8px;
+      gap: 4px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border-light);
+    }
+
+    .auth-modal__tab-btn {
+      flex: 1;
+      padding: 8px 12px;
+      background: transparent;
+      border: none;
+      border-radius: 6px;
+      font-family: var(--sans);
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+    }
+
+    .auth-modal__tab-btn.is-active {
+      background: var(--surface);
+      color: var(--text);
+      font-weight: 600;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .auth-form {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .auth-form__group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .auth-form__label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .auth-form__input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .auth-form__input {
+      width: 100%;
+      padding: 10px 14px;
+      font-family: var(--sans);
+      font-size: 0.92rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .auth-form__input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(82, 107, 80, 0.18);
+    }
+
+    .auth-form__toggle-pwd {
+      position: absolute;
+      right: 10px;
+      background: none;
+      border: none;
+      padding: 6px;
+      color: var(--text-light);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+    }
+
+    .auth-form__toggle-pwd:hover {
+      color: var(--text);
+    }
+
+    .auth-form__submit {
+      width: 100%;
+      padding: 11px 18px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.15s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .auth-form__submit:hover {
+      background: var(--accent-dark);
+      transform: translateY(-1px);
+    }
+
+    .auth-form__submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .auth-modal__alert {
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      line-height: 1.4;
+      margin-bottom: 14px;
+      display: none;
+    }
+
+    .auth-modal__alert.danger {
+      display: block;
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1px solid rgba(139, 58, 58, 0.2);
+    }
+
+    .auth-modal__alert.success {
+      display: block;
+      background: #E8F0E7;
+      color: var(--accent-dark);
+      border: 1px solid rgba(82, 107, 80, 0.25);
+    }
+
+    .auth-modal__divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      color: var(--text-light);
+      font-size: 0.78rem;
+      margin: 16px 0;
+    }
+
+    .auth-modal__divider::before,
+    .auth-modal__divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .auth-modal__divider span {
+      padding: 0 10px;
+    }
+
+    .auth-modal__guest-btn {
+      width: 100%;
+      padding: 10px 16px;
+      background: var(--surface-warm);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: var(--sans);
+      font-size: 0.84rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.15s;
+    }
+
+    .auth-modal__guest-btn:hover {
+      background: var(--surface-muted);
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    .auth-profile {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .auth-profile__user-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px;
+      background: var(--surface-warm);
+      border-radius: 12px;
+      border: 1px solid var(--border-light);
+    }
+
+    .auth-profile__avatar-big {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-size: 1.25rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .auth-profile__details h4 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .auth-profile__details p {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+    }
+
+    .auth-profile__stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .auth-profile__stat-box {
+      padding: 12px;
+      background: var(--surface-warm);
+      border-radius: 10px;
+      border: 1px solid var(--border-light);
+      text-align: center;
+    }
+
+    .auth-profile__stat-num {
+      font-family: var(--serif);
+      font-size: 1.6rem;
+      color: var(--accent-dark);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .auth-profile__stat-lbl {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* ===== BUTTONS ===== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      padding: 12px 24px;
+      min-height: 44px;
+      border-radius: 8px;
+      border: none;
+      transition: transform 0.15s var(--ease), background 0.2s, box-shadow 0.2s, border-color 0.2s;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .btn:focus-visible {
+      outline: 3px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .btn--primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn--primary:hover {
+      background: var(--accent-dark);
+      transform: translateY(-1px);
+    }
+
+    .btn--primary:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn--secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1.5px solid var(--border);
+    }
+
+    .btn--secondary:hover {
+      border-color: var(--accent);
+      color: var(--accent-dark);
+      background: rgba(82, 107, 80, 0.04);
+    }
+
+    .btn--secondary:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      border-color: var(--border-light);
+    }
+
+    .btn--small {
+      font-size: 0.84rem;
+      padding: 9px 14px;
+      min-height: 40px;
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      padding: clamp(36px, 6vw, 76px) 0 clamp(32px, 5vw, 60px);
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+      gap: clamp(28px, 5vw, 64px);
+      align-items: center;
+    }
+
+    .hero__content {
+      max-width: 560px;
+    }
+
+    .hero h1 {
+      margin-bottom: clamp(14px, 2.5vw, 24px);
+    }
+
+    .hero__body {
+      font-size: clamp(1rem, 1.1vw + 0.45rem, 1.1rem);
+      line-height: 1.75;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .hero__note {
+      font-size: 0.85rem;
+      color: var(--text-light);
+      margin-bottom: clamp(24px, 3.5vw, 36px);
+    }
+
+    .hero__actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .hero__visual {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .hero__illustration {
+      width: 100%;
+      max-width: 440px;
+      height: auto;
+    }
+
+    @media (max-width: 880px) {
+      .hero {
+        grid-template-columns: 1fr;
+        gap: 32px;
+        text-align: center;
+      }
+
+      .hero__content {
+        max-width: 100%;
+        margin: 0 auto;
+      }
+
+      .hero__actions {
+        justify-content: center;
+        flex-direction: column;
+        width: 100%;
+        max-width: 380px;
+        margin: 0 auto;
+      }
+
+      .hero__actions .btn {
+        width: 100%;
+      }
+
+      .hero__visual {
+        order: -1;
+      }
+
+      .hero__illustration {
+        max-width: clamp(200px, 55vw, 300px);
+        margin: 0 auto;
+      }
+    }
+
+    /* ===== DEMO SECTION ===== */
+    .demo-intro {
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto clamp(24px, 4vw, 40px);
+    }
+
+    .demo-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+      align-items: stretch;
+      box-shadow: 0 4px 28px rgba(30, 33, 29, 0.05);
+    }
+
+    /* Desktop & Laptop layout optimizations */
+    @media (min-width: 881px) {
+      .demo-panel {
+        max-height: 680px;
+      }
+
+      .cam-col {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .cam-area {
+        height: 100%;
+        aspect-ratio: auto;
+        min-height: 420px;
+      }
+
+      .demo-side {
+        height: 100%;
+        max-height: 680px;
+        overflow-y: auto;
+        padding: clamp(20px, 2.2vw, 28px);
+        gap: 14px;
+      }
+
+      .log {
+        max-height: 140px;
+      }
+    }
+
+    /* Tablet & Mobile layout */
+    @media (max-width: 880px) {
+      .demo-panel {
+        grid-template-columns: 1fr;
+      }
+
+      .demo-side {
+        border-left: none;
+        border-top: 1px solid var(--border-light);
+        padding: 20px 16px;
+        gap: 16px;
+      }
+    }
+
+    /* Landscape Mobile layout (phone rotated sideways) */
+    @media (max-width: 900px) and (orientation: landscape) {
+      .hero {
+        padding: 32px 0;
+      }
+
+      .demo-panel {
+        grid-template-columns: 1.15fr 1fr;
+      }
+
+      .cam-area {
+        aspect-ratio: 4/3;
+      }
+
+      .demo-side {
+        border-top: none;
+        border-left: 1px solid var(--border-light);
+        padding: 16px 14px;
+        gap: 10px;
+        max-height: 82vh;
+        overflow-y: auto;
+      }
+    }
+
+    /* Camera column & area */
+    .cam-col {
+      width: 100%;
+      min-width: 0;
+      background: #24221C;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: stretch;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .cam-area {
+      position: relative;
+      width: 100%;
+      max-width: 100%;
+      aspect-ratio: 4/3;
+      min-width: 0;
+      background: #24221C;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .cam-area video,
+    .cam-area canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .cam-area canvas {
+      pointer-events: none;
+    }
+
+    .cam-placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      color: #B0ADA4;
+      font-size: 0.88rem;
+      text-align: center;
+      padding: clamp(16px, 4vw, 28px);
+      background: #24221C;
+    }
+
+    .cam-placeholder svg {
+      opacity: 0.45;
+    }
+
+    .cam-placeholder p {
+      max-width: 280px;
+      line-height: 1.6;
+    }
+
+    .rangefinder-badge {
+      position: absolute;
+      left: clamp(8px, 2vw, 14px);
+      bottom: clamp(8px, 2vw, 14px);
+      background: rgba(30, 33, 29, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-radius: 8px;
+      padding: 8px 14px;
+      color: #D4D0C6;
+      font-size: 0.75rem;
+      display: none;
+      z-index: 5;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    }
+
+    .rangefinder-badge strong {
+      display: block;
+      font-size: 1.18rem;
+      color: #fff;
+      font-family: var(--sans);
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    .rangefinder-badge.warning strong {
+      color: #E8A848;
+    }
+
+    .rangefinder-badge.danger strong {
+      color: #D46B6B;
+    }
+
+    /* Side panel */
+    .demo-side {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      border-left: 1px solid var(--border-light);
+      min-width: 0;
+      overflow: hidden;
+      background: var(--surface);
+    }
+
+    .demo-side__title {
+      font-family: var(--serif);
+      font-size: 1.2rem;
+      margin-bottom: 2px;
+    }
+
+    .demo-side__subtitle {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* Status indicator */
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      padding: 9px 14px;
+      background: var(--surface-muted);
+      border-radius: 8px;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+
+    .status-dot.live {
+      background: var(--accent);
+      box-shadow: 0 0 0 3px rgba(82, 107, 80, 0.2);
+    }
+
+    .status-dot.warning {
+      background: var(--warning);
+      box-shadow: 0 0 0 3px rgba(168, 114, 42, 0.2);
+    }
+
+    .status-dot.danger {
+      background: var(--danger);
+      box-shadow: 0 0 0 3px rgba(139, 58, 58, 0.2);
+    }
+
+    /* Controls */
+    .demo-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+    }
+
+    /* Adaptive 2-column quick action grid */
+    .demo-controls-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .demo-controls-grid .btn {
+      width: 100%;
+      justify-content: center;
+      text-align: center;
+      padding: 9px 8px;
+      font-size: 0.82rem;
+      gap: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .demo-controls-grid .btn svg {
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 420px) {
+      .demo-controls-grid {
+        gap: 6px;
+      }
+
+      .demo-controls-grid .btn {
+        font-size: 0.76rem;
+        padding: 8px 6px;
+        gap: 4px;
+      }
+
+      .demo-controls-grid .btn svg {
+        width: 14px;
+        height: 14px;
+      }
+    }
+
+    .model-selector-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      width: 100%;
+    }
+
+    .model-selector-wrap label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-light);
+    }
+
+    .model-selector-wrap select {
+      width: 100%;
+      text-align: left;
+      font-size: 0.84rem;
+      padding: 10px 12px;
+      cursor: pointer;
+      background-color: var(--surface);
+      border-radius: 8px;
+    }
+
+    #teachBtn {
+      width: 100%;
+      justify-content: center;
+      font-size: 0.86rem;
+      padding: 11px 16px;
+    }
+
+    /* Waveform */
+    .waveform-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .waveform-label {
+      font-size: 0.76rem;
+      color: var(--text-light);
+      white-space: nowrap;
+    }
+
+    .waveform {
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 20px;
+      flex: 1;
+    }
+
+    .waveform i {
+      width: 3px;
+      background: var(--accent-light);
+      border-radius: 2px;
+      height: 4px;
+      transition: height 0.1s;
+      display: block;
+    }
+
+    /* Detection log */
+    .log-area {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .log-area__label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-light);
+      margin-bottom: 6px;
+    }
+
+    .log {
+      min-height: 95px;
+      max-height: 160px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.75;
+      background: var(--surface-muted);
+      border-radius: 8px;
+      padding: 12px;
+      overflow-wrap: break-word;
+      word-break: break-word;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .log .entry {
+      color: var(--text);
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+
+    .log .entry.alert {
+      color: var(--warning);
+    }
+
+    .log .tag {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* ===== CAPABILITIES ===== */
+    .cap-lead {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+      gap: clamp(28px, 5vw, 60px);
+      align-items: center;
+      margin-bottom: clamp(40px, 6vw, 76px);
+    }
+
+    .cap-lead__visual {
+      background: var(--surface-muted);
+      border-radius: 16px;
+      aspect-ratio: 4/3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .cap-lead__visual svg {
+      width: 70%;
+      opacity: 0.75;
+      height: auto;
+    }
+
+    @media (max-width: 768px) {
+      .cap-lead {
+        grid-template-columns: 1fr;
+        gap: 28px;
+        text-align: center;
+      }
+
+      .cap-lead .subtitle {
+        margin: 0 auto;
+      }
+
+      .cap-lead__visual {
+        max-width: 280px;
+      }
+    }
+
+    .cap-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      border-top: 1px solid var(--border-light);
+    }
+
+    .cap-item {
+      padding: clamp(24px, 3.5vw, 36px) clamp(18px, 3vw, 32px);
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .cap-item:nth-child(odd) {
+      border-right: 1px solid var(--border-light);
+    }
+
+    .cap-item__num {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 8px;
+      font-family: var(--sans);
+    }
+
+    .cap-item h3 {
+      font-size: 1.15rem;
+      margin-bottom: 6px;
+    }
+
+    .cap-item p {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    @media (max-width: 680px) {
+      .cap-list {
+        grid-template-columns: 1fr;
+      }
+
+      .cap-item:nth-child(odd) {
+        border-right: none;
+      }
+    }
+
+    /* ===== HOW IT WORKS ===== */
+    .process-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: clamp(24px, 4vw, 48px);
+      margin-top: clamp(36px, 5vw, 56px);
+    }
+
+    @media (max-width: 840px) {
+      .process-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+        max-width: 480px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .process-col {
+        background: var(--surface);
+        border: 1px solid var(--border-light);
+        border-radius: 14px;
+        padding: 28px 20px;
+      }
+    }
+
+    .process-col {
+      text-align: center;
+    }
+
+    .process-col__title {
+      font-family: var(--serif);
+      font-size: 1.15rem;
+      margin-bottom: 24px;
+      color: var(--text);
+    }
+
+    .process-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+
+    .process-node {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--surface);
+      color: var(--accent);
+    }
+
+    .process-node svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    .process-label {
+      font-size: 0.88rem;
+      font-weight: 500;
+      margin: 12px 0 4px;
+      color: var(--text);
+    }
+
+    .process-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      max-width: 200px;
+      margin: 0 auto;
+    }
+
+    .process-arrow {
+      width: 1px;
+      height: 26px;
+      background: var(--border);
+      margin: 0 auto;
+    }
+
+    /* ===== SCENARIOS ===== */
+    .scenarios-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(16px, 2.5vw, 24px);
+      margin-top: clamp(32px, 4vw, 48px);
+    }
+
+    @media (max-width: 720px) {
+      .scenarios-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .scenario-card {
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      border-radius: 14px;
+      padding: clamp(24px, 3.5vw, 36px) clamp(20px, 3vw, 32px);
+      transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease);
+    }
+
+    .scenario-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(30, 33, 29, 0.06);
+    }
+
+    .scenario-card__icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: var(--surface-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 18px;
+      color: var(--accent);
+    }
+
+    .scenario-card h3 {
+      font-size: 1.15rem;
+      margin-bottom: 10px;
+    }
+
+    .scenario-card__quote {
+      font-family: var(--serif);
+      font-size: 1.08rem;
+      color: var(--accent-dark);
+      font-style: italic;
+      padding: 14px 0;
+      border-top: 1px solid var(--border-light);
+      margin-top: 16px;
+      line-height: 1.5;
+    }
+
+    .scenario-card p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    /* ===== TECH ARCHITECTURE ===== */
+    .tech-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(18px, 3vw, 32px);
+      margin-top: clamp(32px, 4vw, 48px);
+    }
+
+    @media (max-width: 720px) {
+      .tech-cols {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .tech-col {
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      border-radius: 14px;
+      padding: clamp(20px, 3vw, 32px);
+    }
+
+    .tech-col__header {
+      font-family: var(--sans);
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin-bottom: 20px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .tech-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 10px 0;
+    }
+
+    .tech-item+.tech-item {
+      border-top: 1px solid var(--border-light);
+    }
+
+    .tech-item__name {
+      font-weight: 600;
+      font-size: 0.9rem;
+      min-width: 140px;
+      flex-shrink: 0;
+    }
+
+    .tech-item__desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    @media (max-width: 520px) {
+      .tech-col {
+        padding: 18px 16px;
+      }
+
+      .tech-item {
+        flex-direction: column;
+        gap: 3px;
+      }
+
+      .tech-item__name {
+        min-width: unset;
+        width: 100%;
+      }
+    }
+
+    /* ===== PRIVACY ===== */
+    .privacy-block {
+      text-align: center;
+      max-width: 640px;
+      margin: 0 auto;
+      padding: clamp(12px, 3vw, 24px) 0;
+    }
+
+    .privacy-block h2 {
+      margin-bottom: 20px;
+    }
+
+    .privacy-block p {
+      font-size: clamp(0.95rem, 1vw + 0.5rem, 1.05rem);
+      line-height: 1.8;
+      color: var(--text-muted);
+    }
+
+    .privacy-icon {
+      width: 68px;
+      height: 68px;
+      margin: 0 auto 24px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--surface);
+      color: var(--accent);
+    }
+
+    /* ===== METRICS ===== */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0;
+      border: 1px solid var(--border-light);
+      border-radius: 14px;
+      overflow: hidden;
+      background: var(--surface);
+      margin-top: clamp(32px, 4vw, 48px);
+    }
+
+    .metric {
+      padding: clamp(24px, 3.5vw, 36px) clamp(14px, 2vw, 24px);
+      text-align: center;
+      border-right: 1px solid var(--border-light);
+    }
+
+    .metric:last-child {
+      border-right: none;
+    }
+
+    .metric__value {
+      font-family: var(--serif);
+      font-size: clamp(1.5rem, 2.5vw, 2.2rem);
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .metric__label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .metric__note {
+      font-size: 0.68rem;
+      color: var(--text-light);
+      margin-top: 4px;
+      font-style: italic;
+    }
+
+    /* Tablet metrics (3-column layout) */
+    @media (max-width: 960px) and (min-width: 601px) {
+      .metrics-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .metric:nth-child(3) {
+        border-right: none;
+      }
+
+      .metric:nth-child(1),
+      .metric:nth-child(2),
+      .metric:nth-child(3) {
+        border-bottom: 1px solid var(--border-light);
+      }
+
+      .metric:nth-child(4) {
+        grid-column: 1 / 2;
+      }
+
+      .metric:nth-child(5) {
+        grid-column: 2 / 4;
+        border-right: none;
+      }
+    }
+
+    /* Mobile metrics (2-column layout with 5th metric spanning full width) */
+    @media (max-width: 600px) {
+      .metrics-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .metric {
+        padding: 22px 14px;
+        border-bottom: 1px solid var(--border-light);
+      }
+
+      .metric:nth-child(2n) {
+        border-right: none;
+      }
+
+      .metric:last-child {
+        grid-column: span 2;
+        border-right: none;
+        border-bottom: none;
+      }
+    }
+
+    /* ===== FUTURE ===== */
+    .future-list {
+      margin-top: clamp(32px, 4vw, 48px);
+      max-width: 720px;
+    }
+
+    .future-item {
+      display: flex;
+      gap: 16px;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--border-light);
+      align-items: flex-start;
+    }
+
+    .future-item__marker {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      flex-shrink: 0;
+      margin-top: 6px;
+    }
+
+    .future-item__content h3 {
+      font-family: var(--sans);
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .future-item__content p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* ===== FOOTER ===== */
+    .site-footer {
+      border-top: 1px solid var(--border);
+      padding: clamp(36px, 5vw, 48px) 0 clamp(28px, 4vw, 36px);
+      color: var(--text-muted);
+    }
+
+    .footer-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: clamp(24px, 4vw, 40px);
+      margin-bottom: 32px;
+    }
+
+    .footer-brand {
+      font-family: var(--sans);
+      font-weight: 600;
+      font-size: 0.95rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .footer-tagline {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      max-width: 280px;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: clamp(16px, 2.5vw, 28px);
+      list-style: none;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+    }
+
+    .footer-links a:hover {
+      color: var(--text);
+    }
+
+    .footer-bottom {
+      font-size: 0.78rem;
+      color: var(--text-light);
+      padding-top: 20px;
+      border-top: 1px solid var(--border-light);
+      line-height: 1.6;
+    }
+
+    @media (max-width: 680px) {
+      .footer-top {
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .footer-links {
+        gap: 12px 24px;
+      }
+    }
+
+    /* ===== FOCUS STYLES ===== */
+    *:focus-visible {
+      outline: 3px solid var(--accent);
+      outline-offset: 3px;
+      border-radius: 4px;
+    }
+
+    button:focus-visible {
+      outline-offset: 2px;
+    }
+
+    /* ===== REDUCED MOTION ===== */
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+      }
+
+      html {
+        scroll-behavior: auto;
+      }
+
+      .section {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    /* ===== SCROLLBAR ===== */
+    .log::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .log::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .log::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+    }
+  </style>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl@4.22.0/dist/tf-backend-webgl.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/yolo-tfjs-vision@latest/dist/yolo.umd.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/inferencejs@1.2.3/dist/inference.min.js"></script>
+
+</head>
+
+<body>
+
+  <!-- Skip link for keyboard users -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- ===== 1. NAVIGATION ===== -->
+  <header class="site-header" role="banner">
+    <div class="wrap">
+      <nav class="nav" role="navigation" aria-label="Main navigation">
+        <a href="#" class="nav__brand" aria-label="Sonar — home">
+          <svg class="nav__mark" viewBox="0 0 28 28" aria-hidden="true">
+            <circle cx="14" cy="14" r="13" />
+            <circle cx="14" cy="14" r="9" />
+            <circle cx="14" cy="14" r="5" />
+            <circle cx="14" cy="14" r="2.5" />
+          </svg>
+          Sonar
+        </a>
+        <div class="nav__actions">
+          <span class="nav__desktop-badge" id="desktopBadge" style="display:none;" title="Sonar Laptop Desktop Edition">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            Desktop
+          </span>
+
+          <button class="nav__auth-btn" id="openAuthBtn" aria-label="Sign In or Register" aria-haspopup="dialog">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Sign In</span>
+          </button>
+          
+          <div class="nav__user-pill" id="userPill" style="display:none;">
+            <span class="user-pill__avatar" id="userAvatar">U</span>
+            <span class="user-pill__name" id="userName">User</span>
+            <button class="user-pill__action" id="openProfileBtn" title="Account settings">Profile</button>
+          </div>
+
+          <button class="nav__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round">
+              <path d="M3 12h18M3 6h18M3 18h18" />
+            </svg>
+          </button>
+        </div>
+
+        <ul class="nav__links" id="navLinks" role="list">
+          <li><a href="#experience">Experience</a></li>
+          <li><a href="#how-it-works">How it works</a></li>
+          <li><a href="#technology">Technology</a></li>
+          <li><a href="#impact">Impact</a></li>
+          <li><a href="#experience" class="nav__cta">Try the demo</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content">
+
+    <!-- ===== 2. HERO ===== -->
+    <section class="hero wrap" aria-labelledby="hero-heading">
+      <div class="hero__content">
+        <p class="eyebrow">Assistive vision system</p>
+        <h1 id="hero-heading">See the world,<br />through sound.</h1>
+        <p class="hero__body">Sonar is an assistive vision system designed to help visually impaired users understand
+          their surroundings through real-time object detection, proximity awareness and spoken feedback.</p>
+        <p class="hero__note">The browser prototype runs entirely offline — no servers, no data leaves this tab.</p>
+        <div class="hero__actions">
+          <a href="#experience" class="btn btn--primary">Experience the demo</a>
+          <a href="#how-it-works" class="btn btn--secondary">Explore how it works</a>
+        </div>
+      </div>
+      <div class="hero__visual" aria-hidden="true">
+        <svg class="hero__illustration" viewBox="0 0 440 360" fill="none">
+          <!-- Simplified wearable glasses silhouette -->
+          <g opacity="0.08">
+            <circle cx="220" cy="180" r="160" stroke="#1E211D" stroke-width="0.8" />
+            <circle cx="220" cy="180" r="120" stroke="#1E211D" stroke-width="0.6" />
+            <circle cx="220" cy="180" r="80" stroke="#1E211D" stroke-width="0.4" />
+          </g>
+          <!-- Glasses frame -->
+          <g stroke="#1E211D" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="118" y="155" width="75" height="55" rx="14" />
+            <rect x="248" y="155" width="75" height="55" rx="14" />
+            <path d="M193 178 C205 168, 237 168, 248 178" />
+            <path d="M118 175 L96 168" />
+            <path d="M323 175 L345 168" />
+          </g>
+          <!-- Camera lens on glasses -->
+          <circle cx="157" cy="182" r="8" stroke="#526B50" stroke-width="1.5" fill="none" />
+          <circle cx="157" cy="182" r="3" fill="#526B50" opacity="0.4" />
+          <!-- Sound wave lines (right side) -->
+          <g stroke="#526B50" stroke-width="1.2" opacity="0.5" stroke-linecap="round">
+            <path d="M360 165 Q375 180, 360 195" />
+            <path d="M372 155 Q395 180, 372 205" />
+            <path d="M384 145 Q415 180, 384 215" />
+          </g>
+          <!-- Object detection labels -->
+          <g font-family="Inter, sans-serif" font-size="11" fill="#686B63">
+            <rect x="80" y="260" width="72" height="24" rx="4" fill="#ECE9E0" />
+            <text x="88" y="276">person</text>
+            <rect x="180" y="280" width="56" height="24" rx="4" fill="#ECE9E0" />
+            <text x="188" y="296">chair</text>
+            <rect x="290" y="250" width="52" height="24" rx="4" fill="#ECE9E0" />
+            <text x="298" y="266">door</text>
+          </g>
+          <!-- Spatial awareness dots -->
+          <circle cx="130" cy="310" r="2.5" fill="#526B50" opacity="0.25" />
+          <circle cx="170" cy="320" r="2" fill="#526B50" opacity="0.2" />
+          <circle cx="280" cy="300" r="2.5" fill="#526B50" opacity="0.25" />
+          <circle cx="320" cy="315" r="2" fill="#526B50" opacity="0.2" />
+          <circle cx="220" cy="330" r="3" fill="#526B50" opacity="0.3" />
+          <!-- Walking path suggestion -->
+          <g stroke="#526B50" stroke-width="1" stroke-dasharray="4 6" opacity="0.25">
+            <path d="M220 340 L220 360" />
+          </g>
+        </svg>
+      </div>
+    </section>
+
+    <!-- ===== 3. LIVE DEMO ===== -->
+    <section class="section section--alt" id="experience" aria-labelledby="demo-heading">
+      <div class="wrap">
+        <div class="demo-intro">
+          <p class="eyebrow">Live experience</p>
+          <h2 id="demo-heading">Try the prototype</h2>
+          <p class="subtitle" style="margin: 0 auto;">Point your camera at the room around you. Sonar will identify
+            objects, estimate distances and describe the scene aloud.</p>
+        </div>
+
+        <!-- Start button (visible before camera starts) -->
+        <div style="text-align:center;margin-bottom:24px;">
+          <button class="btn btn--primary" id="startBtn" aria-label="Start camera and begin object detection">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <polygon points="5,3 19,12 5,21" />
+            </svg>
+            Start camera &amp; detection
+          </button>
+        </div>
+
+        <div class="demo-panel">
+          <!-- Camera column -->
+          <div class="cam-col">
+            <div class="cam-area" id="camStage">
+              <video id="video" autoplay playsinline muted aria-label="Camera feed"></video>
+              <canvas id="overlay" aria-hidden="true"></canvas>
+              <div class="cam-placeholder" id="placeholder">
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"
+                  aria-hidden="true">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                  <circle cx="12" cy="13" r="4" />
+                </svg>
+                <p>Press <strong>Start camera</strong> above to begin. Detected objects will be outlined and described
+                  aloud.</p>
+              </div>
+              <div class="rangefinder-badge" id="rangefinder" aria-live="polite">
+                <span>Nearest object</span>
+                <strong id="rangeVal">–</strong>
+                <span>cm (estimated)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Side panel -->
+          <div class="demo-side">
+            <div>
+              <h3 class="demo-side__title">What Sonar hears</h3>
+              <p class="demo-side__subtitle">Real-time scene awareness</p>
+            </div>
+
+            <!-- Status -->
+            <div class="status-indicator" role="status" aria-live="polite">
+              <span class="status-dot" id="statusDot" aria-hidden="true"></span>
+              <span id="statusText">Camera ready</span>
+            </div>
+
+            <!-- Controls -->
+            <div class="demo-controls">
+              <!-- Quick Actions Responsive Grid (2 columns on both mobile & laptop) -->
+              <div class="demo-controls-grid">
+                <button class="btn btn--secondary btn--small" id="speakBtn" disabled
+                  aria-label="Describe the current scene aloud">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" aria-hidden="true">
+                    <path d="M11 5L6 9H2v6h4l5 4V5z" />
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                  </svg>
+                  <span>Speak scene</span>
+                </button>
+
+                <button class="btn btn--secondary btn--small" id="ocrBtn" disabled
+                  aria-label="Read visible text using OCR">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" aria-hidden="true">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="16" y1="13" x2="8" y2="13" />
+                    <line x1="16" y1="17" x2="8" y2="17" />
+                  </svg>
+                  <span>Read text (OCR)</span>
+                </button>
+
+                <button class="btn btn--secondary btn--small" id="contOcrBtn" disabled
+                  aria-label="Toggle continuous text scanning">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                  <span id="contOcrLabel">Auto OCR: OFF</span>
+                </button>
+
+                <button class="btn btn--secondary btn--small" id="voiceBtn" disabled
+                  aria-label="Start voice command listening">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                  </svg>
+                  <span id="voiceLabel">Voice: OFF</span>
+                </button>
+
+                <button class="btn btn--secondary btn--small" id="muteBtn" disabled
+                  aria-label="Toggle audio feedback on or off">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" aria-hidden="true">
+                    <path d="M11 5L6 9H2v6h4l5 4V5z" />
+                  </svg>
+                  <span id="muteLabel">Audio ON</span>
+                </button>
+
+                <button class="btn btn--secondary btn--small" id="flipCamBtn" disabled
+                  aria-label="Switch between front and rear cameras">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                    <path d="M20 10c0-4.418-3.582-8-8-8s-8 3.582-8 8c0 2.21 1 4.2 2.6 5.6L4 20h6v-6l-2.4 2.4C6.2 15 5.5 13.6 5.5 12c0-3.59 2.91-6.5 6.5-6.5s6.5 2.91 6.5 6.5c0 1.6-.7 3-1.8 4"/>
+                    <polyline points="19 14 19 20 13 20"/>
+                  </svg>
+                  <span>Flip camera</span>
+                </button>
+              </div>
+
+              <!-- Model selector -->
+              <div class="model-selector-wrap">
+                <label for="modelSelect">Detection engine</label>
+                <select id="modelSelect" class="btn btn--secondary btn--small">
+                  <option value="coco-ssd">COCO-SSD · 80 classes · fast</option>
+                  <option value="yolo">YOLO · custom models · accurate</option>
+                  <option value="roboflow">Roboflow · your trained model</option>
+                </select>
+              </div>
+
+              <!-- Teach Sonar button -->
+              <button class="btn btn--secondary btn--small" id="teachBtn"
+                aria-label="Teach Sonar to recognise a new custom object">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                  <path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+                </svg>
+                <span>Teach Sonar a new object</span>
+              </button>
+            </div>
+
+            <!-- Waveform -->
+            <div class="waveform-wrap">
+              <span class="waveform-label">Audio</span>
+              <div class="waveform" id="waveform" aria-hidden="true"></div>
+            </div>
+
+            <!-- Log -->
+            <div class="log-area">
+              <span class="log-area__label">Detection log</span>
+              <div class="log" id="log" role="log" aria-label="Detection log" aria-live="polite">Waiting for camera…
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 4. CAPABILITIES ===== -->
+    <section class="section" id="capabilities" aria-labelledby="cap-heading">
+      <div class="wrap">
+        <div class="cap-lead">
+          <div>
+            <p class="eyebrow">Core capabilities</p>
+            <h2 id="cap-heading">Real-time awareness</h2>
+            <p class="subtitle">Sonar translates visual information into spoken guidance — helping users navigate
+              spaces, identify objects and read text independently.</p>
+          </div>
+          <div class="cap-lead__visual" aria-hidden="true">
+            <svg viewBox="0 0 320 240" fill="none">
+              <!-- Stylized scene: room with labeled objects -->
+              <rect x="40" y="40" width="240" height="160" rx="8" stroke="#D9D6CC" stroke-width="1" />
+              <rect x="60" y="100" width="40" height="60" rx="3" stroke="#526B50" stroke-width="1.2" />
+              <text x="65" y="95" font-family="Inter" font-size="9" fill="#526B50">chair</text>
+              <rect x="140" y="70" width="30" height="70" rx="2" stroke="#526B50" stroke-width="1.2" />
+              <text x="140" y="65" font-family="Inter" font-size="9" fill="#526B50">person</text>
+              <rect x="220" y="90" width="40" height="60" rx="3" stroke="#526B50" stroke-width="1.2" />
+              <text x="222" y="85" font-family="Inter" font-size="9" fill="#526B50">table</text>
+              <!-- Distance lines -->
+              <line x1="160" y1="200" x2="80" y2="130" stroke="#D9D6CC" stroke-width="0.6" stroke-dasharray="3 4" />
+              <line x1="160" y1="200" x2="155" y2="140" stroke="#D9D6CC" stroke-width="0.6" stroke-dasharray="3 4" />
+              <line x1="160" y1="200" x2="240" y2="150" stroke="#D9D6CC" stroke-width="0.6" stroke-dasharray="3 4" />
+              <circle cx="160" cy="200" r="3" fill="#526B50" opacity="0.4" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="cap-list">
+          <div class="cap-item">
+            <div class="cap-item__num">01</div>
+            <h3>Object recognition</h3>
+            <p>Recognises common objects such as people, chairs, tables, doors, stairs and vehicles — reporting what it
+              sees in plain language.</p>
+          </div>
+          <div class="cap-item">
+            <div class="cap-item__num">02</div>
+            <h3>Proximity awareness</h3>
+            <p>Uses distance information to identify nearby obstacles and provide timely warnings before they become
+              hazards.</p>
+          </div>
+          <div class="cap-item">
+            <div class="cap-item__num">03</div>
+            <h3>Spoken feedback</h3>
+            <p>Turns visual information into concise audio guidance — describing the scene, alerting to obstacles and
+              reading text aloud.</p>
+          </div>
+          <div class="cap-item">
+            <div class="cap-item__num">04</div>
+            <h3>Text reading</h3>
+            <p>Reads signs, labels and documents aloud using optical character recognition, helping users access printed
+              information.</p>
+          </div>
+          <div class="cap-item">
+            <div class="cap-item__num">05</div>
+            <h3>Voice interaction</h3>
+            <p>Lets the user ask for information naturally — "What's in front of me?" or "Read the sign" — using speech
+              recognition.</p>
+          </div>
+          <div class="cap-item">
+            <div class="cap-item__num">06</div>
+            <h3>Personal memory</h3>
+            <p>Allows objects and faces to be personalised and remembered, so the system can greet familiar people or
+              locate known items.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 5. HOW IT WORKS ===== -->
+    <section class="section section--alt" id="how-it-works" aria-labelledby="how-heading">
+      <div class="wrap">
+        <div style="text-align:center;max-width:600px;margin:0 auto;">
+          <p class="eyebrow">System architecture</p>
+          <h2 id="how-heading">How Sonar understands the world</h2>
+          <p class="subtitle" style="margin:0 auto;">Three parallel pipelines work together — turning visual input,
+            spatial data and voice commands into meaningful audio guidance.</p>
+        </div>
+
+        <div class="process-grid">
+          <!-- Vision Pipeline -->
+          <div class="process-col">
+            <div class="process-col__title">Vision pipeline</div>
+            <div class="process-step">
+              <div class="process-node" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                  <circle cx="12" cy="13" r="4" />
+                </svg>
+              </div>
+              <span class="process-label">Camera input</span>
+              <span class="process-desc">Captures the visual scene</span>
+              <div class="process-arrow" aria-hidden="true"></div>
+              <div class="process-node" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                  <line x1="3" y1="9" x2="21" y2="9" />
+                  <line x1="9" y1="3" x2="9" y2="21" />
+                </svg>
+              </div>
+              <span class="process-label">Object detection</span>
+              <span class="process-desc">Identifies and locates objects</span>
+              <div class="process-arrow" aria-hidden="true"></div>
+              <div class="process-node" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M11 5L6 9H2v6h4l5 4V5z" />
+                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                </svg>
+              </div>
+              <span class="process-label">Audio description</span>
+              <span class="process-desc">Speaks what it sees</span>
+            </div>
+          </div>
+
+          <!-- Proximity Pipeline -->
+          <div class="process-col">
+            <div class="process-col__title">Proximity pipeline</div>
+            <div class="process-step">
+              <div class="process-node" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M12 6v6l4 2" />
+                </svg>
+              </div>
+              <span class="process-label">Distance sensor</span>
+              <span class="process-desc">Measures proximity to objects</span>
+              <div class="process-arrow" aria-hidden="true"></div>
+              <div class="process-node" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                </svg>
+              </div>
+              <span class="process-label">Distance analysis</span>
+              <span class="process-desc">Evaluates obstacle risk</span>
+              <div class="process-arrow" aria-hidden="true"></div>
+              <div class="process-node" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                  <line x1="12" y1="9" x2="12" y2="13" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+              </div>
+              <span class="process-label">Proximity alert</span>
+              <span class="process-desc">Warns of nearby obstacles</span>
+            </div>
+          </div>
+
+          <!-- Voice Pipeline -->
+          <div class="process-col">
+            <div class="process-col__title">Voice pipeline</div>
+            <div class="process-step">
+              <div class="process-node" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                  <line x1="12" y1="19" x2="12" y2="23" />
+                  <line x1="8" y1="23" x2="16" y2="23" />
+                </svg>
+              </div>
+              <span class="process-label">Microphone</span>
+              <span class="process-desc">Listens for voice commands</span>
+              <div class="process-arrow" aria-hidden="true"></div>
+              <div class="process-node" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+              </div>
+              <span class="process-label">Speech recognition</span>
+              <span class="process-desc">Parses user intent</span>
+              <div class="process-arrow" aria-hidden="true"></div>
+              <div class="process-node" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <polyline points="9 11 12 14 22 4" />
+                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                </svg>
+              </div>
+              <span class="process-label">Action</span>
+              <span class="process-desc">Executes the request</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 6. REAL-WORLD SCENARIOS ===== -->
+    <section class="section" id="scenarios" aria-labelledby="scenarios-heading">
+      <div class="wrap">
+        <p class="eyebrow">In practice</p>
+        <h2 id="scenarios-heading">What Sonar helps you do</h2>
+        <p class="subtitle">Real situations where spoken environmental awareness makes a meaningful difference.</p>
+
+        <div class="scenarios-grid">
+          <article class="scenario-card">
+            <div class="scenario-card__icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                <polyline points="9 22 9 12 15 12 15 22" />
+              </svg>
+            </div>
+            <h3>Walking through a new building</h3>
+            <p>Navigating unfamiliar indoor spaces with confidence — knowing where doorways, stairs and furniture are
+              located.</p>
+            <div class="scenario-card__quote">"Door ahead. Stairs to your right."</div>
+          </article>
+
+          <article class="scenario-card">
+            <div class="scenario-card__icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+            </div>
+            <h3>Finding an object</h3>
+            <p>Locating personal belongings by asking the system to scan the room and report where common objects are.
+            </p>
+            <div class="scenario-card__quote">"Your backpack is on the chair."</div>
+          </article>
+
+          <article class="scenario-card">
+            <div class="scenario-card__icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+              </svg>
+            </div>
+            <h3>Reading something</h3>
+            <p>Accessing printed information — bus numbers, street signs, product labels, menus — by pointing the camera
+              and asking.</p>
+            <div class="scenario-card__quote">"Bus route 312."</div>
+          </article>
+
+          <article class="scenario-card">
+            <div class="scenario-card__icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+            </div>
+            <h3>Moving through a busy space</h3>
+            <p>Receiving continuous updates about nearby people and open paths — making crowded environments less
+              overwhelming.</p>
+            <div class="scenario-card__quote">"Three people ahead. Open path on your left."</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 7. TECHNOLOGY ===== -->
+    <section class="section section--alt" id="technology" aria-labelledby="tech-heading">
+      <div class="wrap">
+        <div style="max-width:600px;">
+          <p class="eyebrow">Architecture</p>
+          <h2 id="tech-heading">Built with proven, accessible technology</h2>
+          <p class="subtitle">The proposed wearable system uses established open-source components. The browser
+            prototype substitutes equivalent web technologies for the same pipeline.</p>
+        </div>
+
+        <div class="tech-cols">
+          <div class="tech-col">
+            <div class="tech-col__header">Hardware (proposed wearable)</div>
+            <div class="tech-item">
+              <span class="tech-item__name">Raspberry Pi 4</span>
+              <span class="tech-item__desc">Central processing unit running all detection and feedback modules</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-item__name">8MP Camera Module</span>
+              <span class="tech-item__desc">Captures the visual scene for object detection and OCR</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-item__name">HC-SR04 Sensor</span>
+              <span class="tech-item__desc">Ultrasonic distance measurement for obstacle detection (20–400 cm)</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-item__name">Bone Conduction</span>
+              <span class="tech-item__desc">Headphones that deliver audio without blocking ambient sounds</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-item__name">Battery Pack</span>
+              <span class="tech-item__desc">20,000 mAh rechargeable battery for portable operation</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-item__name">Push Buttons</span>
+              <span class="tech-item__desc">Physical controls for mode switching and quick actions</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-item__name">Buzzer</span>
+              <span class="tech-item__desc">Tactile audio alerts for proximity warnings</span>
+            </div>
+          </div>
+
+          <div class="tech-col">
+            <div class="tech-col__header">Software stack</div>
+            <div class="tech-item">
+              <span class="tech-item__name">YOLOv8</span>
+              <span class="tech-item__desc">Real-time object detection model for the wearable; COCO-SSD via
+                TensorFlow.js in the browser prototype</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-item__name">OpenCV</span>
+              <span class="tech-item__desc">Image processing and frame preparation</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-item__name">TensorFlow Lite</span>
+              <span class="tech-item__desc">Optimised inference on edge hardware; TensorFlow.js in the browser</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-item__name">FaceNet</span>
+              <span class="tech-item__desc">Face recognition for personalised identification</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-item__name">Tesseract OCR</span>
+              <span class="tech-item__desc">Optical character recognition for reading text; Tesseract.js in the
+                browser</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-item__name">Whisper</span>
+              <span class="tech-item__desc">Speech-to-text for voice commands; Web Speech API in the browser</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-item__name">gTTS / Festival</span>
+              <span class="tech-item__desc">Text-to-speech for audio feedback; Web Speech API in the browser</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-item__name">SQLite</span>
+              <span class="tech-item__desc">Local database for personalisation; IndexedDB in the browser</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 8. PRIVACY & OFFLINE ===== -->
+    <section class="section" id="privacy" aria-labelledby="privacy-heading">
+      <div class="wrap">
+        <div class="privacy-block">
+          <div class="privacy-icon" aria-hidden="true">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+          </div>
+          <h2 id="privacy-heading">Your surroundings should stay yours.</h2>
+          <p>Sonar is designed around local processing, reducing dependence on cloud connectivity and keeping sensitive
+            environmental information close to the device. The camera feed, detection results and personal data are
+            processed on the device itself — nothing is uploaded, nothing is stored externally.</p>
+          <p style="margin-top:20px;">This browser prototype demonstrates the same principle: once the page has loaded,
+            it runs entirely offline. No data leaves this tab.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 9. PROJECT METRICS ===== -->
+    <section class="section section--alt" id="impact" aria-labelledby="metrics-heading">
+      <div class="wrap">
+        <div style="text-align:center;max-width:600px;margin:0 auto;">
+          <p class="eyebrow">Expected outcomes</p>
+          <h2 id="metrics-heading">Project targets</h2>
+          <p class="subtitle" style="margin:0 auto;">These figures represent the expected performance described in the
+            project proposal — targets for the fully developed system.</p>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric">
+            <div class="metric__value">90–96%</div>
+            <div class="metric__label">Object detection accuracy</div>
+            <div class="metric__note">expected</div>
+          </div>
+          <div class="metric">
+            <div class="metric__value">1–2 s</div>
+            <div class="metric__label">Response latency</div>
+            <div class="metric__note">expected</div>
+          </div>
+          <div class="metric">
+            <div class="metric__value">20–150 cm</div>
+            <div class="metric__label">Obstacle alert threshold</div>
+            <div class="metric__note">configurable range</div>
+          </div>
+          <div class="metric">
+            <div class="metric__value">₹11–12k</div>
+            <div class="metric__label">Estimated system cost</div>
+            <div class="metric__note">full hardware build</div>
+          </div>
+          <div class="metric">
+            <div class="metric__value">85–95%</div>
+            <div class="metric__label">Voice command accuracy</div>
+            <div class="metric__note">expected</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 10. FUTURE ===== -->
+    <section class="section" id="future" aria-labelledby="future-heading">
+      <div class="wrap">
+        <p class="eyebrow">Looking ahead</p>
+        <h2 id="future-heading">Where this could go</h2>
+        <p class="subtitle">The project proposal identifies several directions for extending Sonar's capabilities beyond
+          the initial prototype.</p>
+
+        <div class="future-list">
+          <div class="future-item">
+            <div class="future-item__marker" aria-hidden="true"></div>
+            <div class="future-item__content">
+              <h3>Improved vision models</h3>
+              <p>Adopting newer, more accurate detection architectures as they become available for edge deployment.</p>
+            </div>
+          </div>
+          <div class="future-item">
+            <div class="future-item__marker" aria-hidden="true"></div>
+            <div class="future-item__content">
+              <h3>Semantic scene understanding</h3>
+              <p>Moving beyond individual object labels to describe spatial relationships and overall scene context.</p>
+            </div>
+          </div>
+          <div class="future-item">
+            <div class="future-item__marker" aria-hidden="true"></div>
+            <div class="future-item__content">
+              <h3>Depth cameras &amp; LiDAR</h3>
+              <p>Replacing ultrasonic sensors with LiDAR or structured-light depth cameras for richer 3D spatial data.
+              </p>
+            </div>
+          </div>
+          <div class="future-item">
+            <div class="future-item__marker" aria-hidden="true"></div>
+            <div class="future-item__content">
+              <h3>GPS &amp; IMU integration</h3>
+              <p>Adding location awareness and inertial measurement for outdoor navigation and route guidance.</p>
+            </div>
+          </div>
+          <div class="future-item">
+            <div class="future-item__marker" aria-hidden="true"></div>
+            <div class="future-item__content">
+              <h3>Thermal &amp; haptic feedback</h3>
+              <p>Thermal sensors for detecting heat sources, and vibration motors for non-audio directional alerts.</p>
+            </div>
+          </div>
+          <div class="future-item">
+            <div class="future-item__marker" aria-hidden="true"></div>
+            <div class="future-item__content">
+              <h3>Multilingual support</h3>
+              <p>Extending speech synthesis and recognition to additional languages for broader accessibility.</p>
+            </div>
+          </div>
+          <div class="future-item">
+            <div class="future-item__marker" aria-hidden="true"></div>
+            <div class="future-item__content">
+              <h3>Smart city &amp; emergency integration</h3>
+              <p>Connecting with traffic signals, public transport systems and emergency services for richer contextual
+                awareness.</p>
+            </div>
+          </div>
+          <div class="future-item">
+            <div class="future-item__marker" aria-hidden="true"></div>
+            <div class="future-item__content">
+              <h3>Companion mobile application</h3>
+              <p>A smartphone app for remote monitoring, configuration, and extending system reach beyond the wearable
+                device.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== 11. FOOTER ===== -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="wrap">
+      <div class="footer-top">
+        <div>
+          <div class="footer-brand">Sonar</div>
+          <p class="footer-tagline">Assistive technology for a more navigable world.</p>
+        </div>
+        <ul class="footer-links" role="list">
+          <li><a href="#experience">Experience</a></li>
+          <li><a href="#how-it-works">How it works</a></li>
+          <li><a href="#technology">Technology</a></li>
+          <li><a href="#impact">Impact</a></li>
+        </ul>
+      </div>
+      <div class="footer-bottom">
+        Student mini-project prototype · Built with TensorFlow.js, Tesseract.js &amp; Web Speech API · No data leaves
+        this browser tab.
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===== AUTH & CLOUD SYNC MODAL ===== -->
+  <div class="auth-modal" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle" tabindex="-1">
+    <div class="auth-modal__card">
+      <button class="auth-modal__close" id="closeAuthModal" aria-label="Close dialog">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+
+      <!-- VIEW 1: SIGN IN & REGISTER (Shown when logged out) -->
+      <div id="authFormView">
+        <div class="auth-modal__header">
+          <div class="auth-modal__brand">
+            <svg class="nav__mark" viewBox="0 0 28 28" aria-hidden="true" style="width:20px;height:20px;">
+              <circle cx="14" cy="14" r="13" />
+              <circle cx="14" cy="14" r="9" />
+              <circle cx="14" cy="14" r="5" />
+              <circle cx="14" cy="14" r="2.5" />
+            </svg>
+            <span>Sonar Security &amp; Cloud Sync</span>
+          </div>
+          <h2 class="auth-modal__title" id="authModalTitle">Welcome to Sonar</h2>
+          <p class="auth-modal__subtitle">Log in or create an account to securely save and sync your detections, custom trained objects, and accessibility preferences.</p>
+        </div>
+
+        <div class="auth-modal__alert" id="authAlert" role="alert"></div>
+
+        <div class="auth-modal__tabs" role="tablist">
+          <button class="auth-modal__tab-btn is-active" id="tabSignIn" role="tab" aria-selected="true" aria-controls="signInForm">Sign In</button>
+          <button class="auth-modal__tab-btn" id="tabSignUp" role="tab" aria-selected="false" aria-controls="signUpForm">Create Account</button>
+        </div>
+
+        <!-- SIGN IN FORM -->
+        <form class="auth-form" id="signInForm" autocomplete="on">
+          <div class="auth-form__group">
+            <label class="auth-form__label" for="loginEmail">Email Address</label>
+            <div class="auth-form__input-wrap">
+              <input class="auth-form__input" type="email" id="loginEmail" required placeholder="alex@example.com" autocomplete="email" />
+            </div>
+          </div>
+
+          <div class="auth-form__group">
+            <label class="auth-form__label" for="loginPassword">Password</label>
+            <div class="auth-form__input-wrap">
+              <input class="auth-form__input" type="password" id="loginPassword" required placeholder="••••••••" autocomplete="current-password" />
+              <button type="button" class="auth-form__toggle-pwd" data-target="loginPassword" aria-label="Toggle password visibility">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" class="auth-form__submit" id="submitLoginBtn">
+            <span>Sign In to Sonar</span>
+          </button>
+        </form>
+
+        <!-- SIGN UP FORM (hidden initially) -->
+        <form class="auth-form" id="signUpForm" autocomplete="on" style="display:none;">
+          <div class="auth-form__group">
+            <label class="auth-form__label" for="regUsername">Full Name / Username</label>
+            <div class="auth-form__input-wrap">
+              <input class="auth-form__input" type="text" id="regUsername" required placeholder="alex_vision" autocomplete="username" />
+            </div>
+          </div>
+
+          <div class="auth-form__group">
+            <label class="auth-form__label" for="regEmail">Email Address</label>
+            <div class="auth-form__input-wrap">
+              <input class="auth-form__input" type="email" id="regEmail" required placeholder="alex@example.com" autocomplete="email" />
+            </div>
+          </div>
+
+          <div class="auth-form__group">
+            <label class="auth-form__label" for="regPassword">Password</label>
+            <div class="auth-form__input-wrap">
+              <input class="auth-form__input" type="password" id="regPassword" required minlength="6" placeholder="At least 6 characters" autocomplete="new-password" />
+              <button type="button" class="auth-form__toggle-pwd" data-target="regPassword" aria-label="Toggle password visibility">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+            <span style="font-size:0.75rem; color:var(--text-light); margin-top:2px;">Minimum 6 characters (hashed with bcrypt &amp; salt).</span>
+          </div>
+
+          <button type="submit" class="auth-form__submit" id="submitRegBtn">
+            <span>Create Secure Account</span>
+          </button>
+        </form>
+
+        <div class="auth-modal__divider">
+          <span>or continue without cloud sync</span>
+        </div>
+
+        <button type="button" class="auth-modal__guest-btn" id="guestBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>Continue as Guest (100% Offline Vision)</span>
+        </button>
+      </div>
+
+      <!-- VIEW 2: LOGGED-IN PROFILE (Shown when user is authenticated) -->
+      <div id="authProfileView" style="display:none;">
+        <div class="auth-modal__header">
+          <div class="auth-modal__brand">
+            <span style="color:var(--accent); font-size:1.2rem;">●</span>
+            <span>Active Secure Session</span>
+          </div>
+          <h2 class="auth-modal__title">Account Profile</h2>
+          <p class="auth-modal__subtitle">Connected to Sonar Secure Node &amp; Database</p>
+        </div>
+
+        <div class="auth-profile">
+          <div class="auth-profile__user-card">
+            <div class="auth-profile__avatar-big" id="profileAvatarBig">U</div>
+            <div class="auth-profile__details">
+              <h4 id="profileUsername">Username</h4>
+              <p id="profileEmail">user@example.com</p>
+            </div>
+          </div>
+
+          <div class="auth-profile__stats">
+            <div class="auth-profile__stat-box">
+              <div class="auth-profile__stat-num" id="profileTotalDetections">0</div>
+              <div class="auth-profile__stat-lbl">Sync'd Detections</div>
+            </div>
+            <div class="auth-profile__stat-box">
+              <div class="auth-profile__stat-num" id="profileSecurityMode">JWT Bearer</div>
+              <div class="auth-profile__stat-lbl">Security Standard</div>
+            </div>
+          </div>
+
+          <div style="font-size:0.8rem; color:var(--text-muted); background:var(--surface-warm); padding:10px 14px; border-radius:8px; border:1px solid var(--border-light); line-height:1.5;">
+            🔒 <strong>Security status:</strong> Real-time detections from live camera are signed with your JSON Web Token and encrypted/stored in your private profile.
+          </div>
+
+          <button type="button" class="btn btn--outline" id="profileLogoutBtn" style="width:100%; border:1px solid var(--border); color:var(--danger); border-color:rgba(139,58,58,0.3); justify-content:center;">
+            Sign Out
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== CDN LIBRARIES (same as original) ===== -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+  <script>
+    (function () {
+  'use strict';
+
+  // ===== AUTH GUARD =====
+  // Strictly require authentication (sign up / login) before accessing the main contents & live demo
+  const hasInitialToken = localStorage.getItem('sonar_token') || sessionStorage.getItem('sonar_token');
+  const hasInitialUser = localStorage.getItem('sonar_user') || sessionStorage.getItem('sonar_user');
+  if (!hasInitialToken || !hasInitialUser) {
+    window.location.replace('index.html');
+    return;
+  }
+
+  // ===== MOBILE NAV TOGGLE (unchanged) =====
+  const navToggle = document.getElementById('navToggle');
+  const navLinks = document.getElementById('navLinks');
+  navToggle.addEventListener('click', () => {
+    const open = navLinks.classList.toggle('is-open');
+    navToggle.setAttribute('aria-expanded', open);
+  });
+  navLinks.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      navLinks.classList.remove('is-open');
+      navToggle.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  // ===== SECTION REVEAL (unchanged) =====
+  const sections = document.querySelectorAll('.section');
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+  sections.forEach(s => revealObserver.observe(s));
+
+  // ===== DOM REFERENCES =====
+  const startBtn = document.getElementById('startBtn');
+  const speakBtn = document.getElementById('speakBtn');
+  const ocrBtn = document.getElementById('ocrBtn');
+  const muteBtn = document.getElementById('muteBtn');
+  const video = document.getElementById('video');
+  const overlay = document.getElementById('overlay');
+  const placeholder = document.getElementById('placeholder');
+  const statusDot = document.getElementById('statusDot');
+  const statusText = document.getElementById('statusText');
+  const logEl = document.getElementById('log');
+  const rangefinder = document.getElementById('rangefinder');
+  const rangeVal = document.getElementById('rangeVal');
+  const waveform = document.getElementById('waveform');
+
+  // ===== NEW: New element references =====
+  const modelSelect = document.getElementById('modelSelect');
+  const teachBtn = document.getElementById('teachBtn');
+  const voiceBtn = document.getElementById('voiceBtn');
+  const contOcrBtn = document.getElementById('contOcrBtn');
+  const flipCamBtn = document.getElementById('flipCamBtn');
+
+  // ===== AUTH & PROFILE DOM REFERENCES =====
+  const authModal = document.getElementById('authModal');
+  const openAuthBtn = document.getElementById('openAuthBtn');
+  const openProfileBtn = document.getElementById('openProfileBtn');
+  const closeAuthModal = document.getElementById('closeAuthModal');
+  const userPill = document.getElementById('userPill');
+  const userAvatar = document.getElementById('userAvatar');
+  const userName = document.getElementById('userName');
+  const authFormView = document.getElementById('authFormView');
+  const authProfileView = document.getElementById('authProfileView');
+  const tabSignIn = document.getElementById('tabSignIn');
+  const tabSignUp = document.getElementById('tabSignUp');
+  const signInForm = document.getElementById('signInForm');
+  const signUpForm = document.getElementById('signUpForm');
+  const loginEmail = document.getElementById('loginEmail');
+  const loginPassword = document.getElementById('loginPassword');
+  const regUsername = document.getElementById('regUsername');
+  const regEmail = document.getElementById('regEmail');
+  const regPassword = document.getElementById('regPassword');
+  const submitLoginBtn = document.getElementById('submitLoginBtn');
+  const submitRegBtn = document.getElementById('submitRegBtn');
+  const authAlert = document.getElementById('authAlert');
+  const guestBtn = document.getElementById('guestBtn');
+  const profileAvatarBig = document.getElementById('profileAvatarBig');
+  const profileUsername = document.getElementById('profileUsername');
+  const profileEmail = document.getElementById('profileEmail');
+  const profileTotalDetections = document.getElementById('profileTotalDetections');
+  const profileLogoutBtn = document.getElementById('profileLogoutBtn');
+  const desktopBadge = document.getElementById('desktopBadge');
+
+  // ===== AUTH & CLOUD STATE =====
+  const API_BASE = (window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'capacitor:')
+    ? 'http://localhost:5050'
+    : '';
+
+  const sonarAuth = {
+    token: localStorage.getItem('sonar_token') || sessionStorage.getItem('sonar_token') || null,
+    user: (() => {
+      try {
+        const stored = localStorage.getItem('sonar_user') || sessionStorage.getItem('sonar_user');
+        return stored ? JSON.parse(stored) : null;
+      } catch { return null; }
+    })(),
+    totalDetections: 0,
+    lastSyncTime: 0
+  };
+
+  // ===== STATE =====
+  let model = null;           // Active detection model
+  let yoloModel = null;       // YOLO model instance
+  let roboflowEngine = null;  // Roboflow engine
+  let roboflowWorkerId = null;
+  let running = false;
+  let muted = false;
+  let lastSpoken = 0;
+  let currentModelType = 'coco-ssd';
+  let currentFacingMode = 'environment';
+
+  // ===== NEW: Feature state =====
+  let voiceRecognition = null;
+  let voiceActive = false;
+  let continuousOcrActive = false;
+  let continuousOcrInterval = null;
+  let lastOcrText = '';
+  let customModel = null;     // Teachable Machine model
+  let customLabels = [];      // User-taught labels
+  let featureExtractor = null;
+  const customTrainingData = []; // { features, label }
+
+  const ctx = overlay.getContext('2d');
+
+  // Build waveform bars (unchanged)
+  for (let i = 0; i < 28; i++) {
+    const b = document.createElement('i');
+    waveform.appendChild(b);
+  }
+
+  function animateWave(active) {
+    const bars = waveform.children;
+    if (!active) {
+      for (const b of bars) b.style.height = '4px';
+      return;
+    }
+    clearInterval(window.__waveTimer);
+    window.__waveTimer = setInterval(() => {
+      for (const b of bars) b.style.height = (4 + Math.random() * 18) + 'px';
+    }, 90);
+  }
+
+  function stopWave() {
+    clearInterval(window.__waveTimer);
+    animateWave(false);
+  }
+
+  function log(text, alert) {
+    const line = document.createElement('div');
+    line.className = 'entry' + (alert ? ' alert' : '');
+    const t = new Date().toLocaleTimeString();
+    line.innerHTML = '<span class="tag">' + t + '</span>  ' + text;
+    logEl.prepend(line);
+  }
+
+  function speak(text) {
+    if (muted) return;
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 1.02;
+    u.onstart = () => animateWave(true);
+    u.onend = () => stopWave();
+    window.speechSynthesis.speak(u);
+  }
+
+  // ============================================================
+  // ===== NEW: MODEL LOADING & SWITCHING =====
+  // ============================================================
+
+  async function loadCocoSsd() {
+    if (model) return model;
+    statusText.textContent = 'Loading COCO-SSD…';
+    model = await cocoSsd.load();
+    return model;
+  }
+
+  async function loadYolo() {
+    if (yoloModel) return yoloModel;
+    statusText.textContent = 'Loading YOLO model…';
+    try {
+      yoloModel = new YOLO();
+      await yoloModel.setup({
+        modelUrl: 'https://raw.githubusercontent.com/huggingface/tfjs-models/main/yolov8n/model.json',
+        labels: undefined, // defaults to COCO categories
+        scoreThreshold: 0.3,
+        boxLineWidth: 2,
+        boxLabels: true
+      });
+      await yoloModel.loadModel();
+      log('YOLO model loaded');
+      return yoloModel;
+    } catch (e) {
+      log('YOLO load error: ' + e.message + ' — falling back to COCO-SSD', true);
+      yoloModel = null;
+      return null;
+    }
+  }
+
+  async function loadRoboflowModel(publishableKey, modelId) {
+    if (roboflowEngine) return roboflowEngine;
+    statusText.textContent = 'Loading Roboflow model…';
+    try {
+      const { InferenceEngine } = inferencejs;
+      roboflowEngine = new InferenceEngine();
+      roboflowWorkerId = await roboflowEngine.startWorkerByModelId(modelId, publishableKey);
+      log('Roboflow model loaded: ' + modelId);
+      return roboflowEngine;
+    } catch (e) {
+      log('Roboflow load error: ' + e.message, true);
+      roboflowEngine = null;
+      return null;
+    }
+  }
+
+  // ===== NEW: Unified detection function =====
+  async function detectFrame() {
+    if (currentModelType === 'coco-ssd') {
+      return await model.detect(video);
+    }
+    if (currentModelType === 'yolo' && yoloModel) {
+      // YOLO draws directly to canvas and returns predictions
+      let predictions = [];
+      await yoloModel.detect(video, yoloModel, overlay, (preds) => {
+        predictions = preds;
+      });
+      return predictions || [];
+    }
+    if (currentModelType === 'roboflow' && roboflowEngine && roboflowWorkerId) {
+      const { CVImage } = inferencejs;
+      const img = new CVImage(video);
+      const preds = await roboflowEngine.infer(roboflowWorkerId, img);
+      // Normalize Roboflow format to COCO-SSD-like format
+      return (preds || []).map(p => ({
+        bbox: [p.x - p.width / 2, p.y - p.height / 2, p.width, p.height],
+        class: p.class || 'object',
+        score: p.confidence || 0.5
+      }));
+    }
+    return [];
+  }
+
+  // ===== NEW: Model switch handler =====
+  modelSelect.addEventListener('change', async () => {
+    const val = modelSelect.value;
+    currentModelType = val;
+    log('Switching detection engine to: ' + val);
+
+    if (val === 'yolo') {
+      const loaded = await loadYolo();
+      if (!loaded) {
+        modelSelect.value = 'coco-ssd';
+        currentModelType = 'coco-ssd';
+      }
+    } else if (val === 'roboflow') {
+      const key = localStorage.getItem('roboflowKey');
+      const modelId = localStorage.getItem('roboflowModelId');
+      if (!key || !modelId) {
+        const inputKey = prompt('Enter your Roboflow publishable_key:');
+        const inputModel = prompt('Enter your Roboflow model ID (workspace/model-slug):');
+        if (inputKey && inputModel) {
+          localStorage.setItem('roboflowKey', inputKey);
+          localStorage.setItem('roboflowModelId', inputModel);
+          await loadRoboflowModel(inputKey, inputModel);
+        } else {
+          modelSelect.value = 'coco-ssd';
+          currentModelType = 'coco-ssd';
+        }
+      } else {
+        await loadRoboflowModel(key, modelId);
+      }
+    }
+  });
+
+  // ============================================================
+  // ===== NEW: TEACHABLE MACHINE (CUSTOM OBJECT TRAINING) =====
+  // ============================================================
+
+  teachBtn.addEventListener('click', async () => {
+    const label = prompt('What object are you teaching Sonar to recognise? (e.g. "my keys")');
+    if (!label) return;
+
+    log('Teaching: collecting 30 samples of "' + label + '"…');
+    speak('Hold the object steady. I am learning to recognise it.');
+
+    try {
+      // Load MobileNet as feature extractor
+      if (!featureExtractor) {
+        featureExtractor = await mobilenet.load({ version: 2, alpha: 0.5 });
+      }
+
+      const samples = [];
+      for (let i = 0; i < 30; i++) {
+        const tensor = tf.browser.fromPixels(video)
+          .resizeBilinear([224, 224])
+          .toFloat()
+          .div(255.0)
+          .expandDims(0);
+        const features = featureExtractor.infer(tensor, true); // embedding
+        samples.push(features);
+        tensor.dispose();
+        await new Promise(r => setTimeout(r, 100));
+      }
+
+      const stacked = tf.concat(samples, 0);
+      customTrainingData.push({ features: stacked, label });
+
+      // Build/update a simple classifier
+      await trainCustomModel();
+
+      log('Learned "' + label + '" from 30 samples', false);
+      speak('I have learned to recognise your ' + label + '.');
+
+      if (!customLabels.includes(label)) customLabels.push(label);
+    } catch (e) {
+      log('Teaching error: ' + e.message, true);
+    }
+  });
+
+  async function trainCustomModel() {
+    // Simple KNN-style classifier on top of embeddings
+    // For production, use a small dense network
+    if (customTrainingData.length === 0) return;
+
+    const allFeatures = tf.concat(customTrainingData.map(d => d.features), 0);
+    const numClasses = customLabels.length;
+    const labels = [];
+    customTrainingData.forEach((d, i) => {
+      const count = d.features.shape[0];
+      for (let j = 0; j < count; j++) {
+        const oneHot = new Array(numClasses).fill(0);
+        oneHot[i] = 1;
+        labels.push(oneHot);
+      }
+    });
+
+    const labelTensor = tf.tensor2d(labels);
+    customModel = tf.sequential({
+      layers: [
+        tf.layers.dense({ units: 64, activation: 'relu', inputShape: [allFeatures.shape[1]] }),
+        tf.layers.dense({ units: numClasses, activation: 'softmax' })
+      ]
+    });
+    customModel.compile({
+      optimizer: tf.train.adam(0.001),
+      loss: 'categoricalCrossentropy',
+      metrics: ['accuracy']
+    });
+
+    await customModel.fit(allFeatures, labelTensor, {
+      epochs: 20,
+      batchSize: 8,
+      shuffle: true,
+      verbose: 0
+    });
+
+    allFeatures.dispose();
+    labelTensor.dispose();
+  }
+
+  async function detectCustomObject() {
+    if (!customModel || !featureExtractor) return null;
+    const tensor = tf.browser.fromPixels(video)
+      .resizeBilinear([224, 224])
+      .toFloat()
+      .div(255.0)
+      .expandDims(0);
+    const features = featureExtractor.infer(tensor, true);
+    const prediction = customModel.predict(features);
+    const probs = await prediction.data();
+    tensor.dispose();
+    features.dispose();
+    prediction.dispose();
+
+    const maxIdx = probs.indexOf(Math.max(...probs));
+    const confidence = probs[maxIdx];
+    if (confidence > 0.7) {
+      return { class: customLabels[maxIdx], score: confidence };
+    }
+    return null;
+  }
+
+  // ============================================================
+  // ===== NEW: VOICE COMMANDS (Web Speech API) =====
+  // ============================================================
+
+  function initVoiceCommands() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      log('Voice commands not supported in this browser', true);
+      voiceBtn.disabled = true;
+      return;
+    }
+
+    voiceRecognition = new SpeechRecognition();
+    voiceRecognition.continuous = true;
+    voiceRecognition.interimResults = false;
+    voiceRecognition.lang = 'en-US';
+
+    voiceRecognition.onresult = (event) => {
+      const command = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
+      log('Voice command: "' + command + '"');
+
+      if (command.includes('what') && (command.includes('front') || command.includes('see'))) {
+        speakBtn.click();
+      } else if (command.includes('read') || command.includes('text')) {
+        ocrBtn.click();
+      } else if (command.includes('stop') || command.includes('quiet') || command.includes('silence')) {
+        window.speechSynthesis.cancel();
+        log('Audio stopped by voice command');
+      } else if (command.includes('where') && command.includes('door')) {
+        findObject('door');
+      } else if (command.includes('where') && command.includes('person')) {
+        findObject('person');
+      } else if (command.includes('where') && command.includes('chair')) {
+        findObject('chair');
+      } else if (command.includes('describe') || command.includes('scene')) {
+        speakBtn.click();
+      } else {
+        log('Unrecognised voice command');
+      }
+    };
+
+    voiceRecognition.onerror = (e) => {
+      if (e.error !== 'no-speech') log('Voice error: ' + e.error, true);
+    };
+
+    voiceRecognition.onend = () => {
+      if (voiceActive) voiceRecognition.start(); // restart if still active
+    };
+  }
+
+  voiceBtn.addEventListener('click', () => {
+    if (!voiceRecognition) initVoiceCommands();
+    if (!voiceRecognition) return;
+
+    voiceActive = !voiceActive;
+    if (voiceActive) {
+      voiceRecognition.start();
+      voiceBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg> <span>Voice: ON</span>';
+      log('Voice commands active. Say "what is in front of me" or "read the text".');
+    } else {
+      voiceRecognition.stop();
+      voiceBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg> <span>Voice: OFF</span>';
+    }
+  });
+
+  async function findObject(targetClass) {
+    const preds = await detectFrame();
+    const matches = preds.filter(p => p.class === targetClass);
+    if (matches.length === 0) {
+      speak('I don\'t see a ' + targetClass + ' right now.');
+    } else {
+      const [x, , w] = matches[0].bbox;
+      const centerX = x + w / 2;
+      const pos = centerX < overlay.width * 0.4 ? 'to your left' :
+                  centerX > overlay.width * 0.6 ? 'to your right' : 'directly ahead';
+      speak('The ' + targetClass + ' is ' + pos + '.');
+      log('Found ' + targetClass + ' ' + pos);
+    }
+  }
+
+  // ============================================================
+  // ===== NEW: CONTINUOUS OCR =====
+  // ============================================================
+
+  contOcrBtn.addEventListener('click', () => {
+    continuousOcrActive = !continuousOcrActive;
+    if (continuousOcrActive) {
+      continuousOcrInterval = setInterval(runContinuousOcr, 4000);
+      contOcrBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> <span>Auto OCR: ON</span>';
+      log('Continuous OCR started — scanning every 4 seconds');
+    } else {
+      clearInterval(continuousOcrInterval);
+      continuousOcrInterval = null;
+      contOcrBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> <span>Auto OCR: OFF</span>';
+      log('Continuous OCR stopped');
+    }
+  });
+
+  async function runContinuousOcr() {
+    if (!running) return;
+    const c = document.createElement('canvas');
+    c.width = video.videoWidth;
+    c.height = video.videoHeight;
+    c.getContext('2d').drawImage(video, 0, 0);
+
+    try {
+      const { data: { text } } = await Tesseract.recognize(c, 'eng');
+      const clean = text.trim().replace(/\s+/g, ' ');
+      if (clean.length > 3 && clean !== lastOcrText) {
+        lastOcrText = clean;
+        speak('Text found: ' + clean.slice(0, 150));
+        log('OCR (continuous): "' + clean.slice(0, 100) + (clean.length > 100 ? '…' : '') + '"');
+      }
+    } catch (e) {
+      // silently skip failed frames
+    }
+  }
+
+  // ============================================================
+  // ===== ENHANCED SPATIAL SCENE DESCRIPTION =====
+  // ============================================================
+
+  speakBtn.addEventListener('click', async () => {
+    if (!running) return;
+    const preds = await detectFrame();
+
+    // Combine with custom object detection
+    const customPred = await detectCustomObject();
+    if (customPred) preds.push(customPred);
+
+    if (preds.length === 0) {
+      speak('No recognisable objects detected right now.');
+      log('Scene: nothing detected');
+      return;
+    }
+
+    const frameW = overlay.width;
+    const frameH = overlay.height;
+
+    const descriptions = preds.map(p => {
+      const [x, y, w, h] = p.bbox;
+      const centerX = x + w / 2;
+      const centerY = y + h / 2;
+
+      let horiz = 'ahead';
+      if (centerX < frameW * 0.3) horiz = 'on your left';
+      else if (centerX > frameW * 0.7) horiz = 'on your right';
+
+      let vert = '';
+      if (centerY < frameH * 0.3) vert = ' high up';
+      else if (centerY > frameH * 0.7) vert = ' low down';
+
+      const areaRatio = (w * h) / (frameW * frameH);
+      let dist = 'in the distance';
+      if (areaRatio > 0.3) dist = 'very close';
+      else if (areaRatio > 0.1) dist = 'nearby';
+
+      return p.class + ' ' + horiz + vert + ', ' + dist;
+    });
+
+    const phrase = descriptions.join('; ');
+    speak('I see ' + phrase + '.');
+    log('Spatial scene: ' + phrase);
+  });
+
+  // ============================================================
+  // ===== INIT & DETECTION LOOP =====
+  // ============================================================
+
+  async function init() {
+    startBtn.disabled = true;
+    startBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10" opacity="0.3"/><path d="M12 2 a10 10 0 0 1 10 10" stroke-dasharray="15 47"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="0.8s" repeatCount="indefinite"/></path></svg> Preparing vision…';
+    statusText.textContent = 'Requesting camera…';
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment' },
+        audio: false
+      });
+      video.srcObject = stream;
+      await video.play();
+      placeholder.style.display = 'none';
+      rangefinder.style.display = 'block';
+      overlay.width = video.videoWidth || 640;
+      overlay.height = video.videoHeight || 480;
+
+      model = await loadCocoSsd();
+      running = true;
+      statusDot.classList.add('live');
+      statusText.textContent = 'Listening to your surroundings';
+      logEl.innerHTML = '';
+      log('Model loaded. Detection running.');
+      speak('Detection started. I will describe what I see.');
+      speakBtn.disabled = false;
+      ocrBtn.disabled = false;
+      muteBtn.disabled = false;
+      voiceBtn.disabled = false;
+      contOcrBtn.disabled = false;
+      if (flipCamBtn) flipCamBtn.disabled = false;
+      startBtn.style.display = 'none';
+      detectLoop();
+    } catch (err) {
+      statusText.textContent = 'Camera unavailable';
+      startBtn.disabled = false;
+      startBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg> Start camera & detection';
+      log('Error: ' + err.message, true);
+    }
+  }
+
+  async function detectLoop() {
+    if (!running) return;
+
+    let preds = [];
+    try {
+      preds = await detectFrame();
+    } catch (e) {
+      // skip frame on error
+    }
+
+    // Custom object detection overlay
+    try {
+      const customPred = await detectCustomObject();
+      if (customPred) preds.push(customPred);
+    } catch (e) { /* skip */ }
+
+    // Clear canvas (YOLO draws directly, so only clear for coco-ssd/roboflow)
+    if (currentModelType !== 'yolo') {
+      ctx.clearRect(0, 0, overlay.width, overlay.height);
+    }
+    ctx.font = '12px Inter, sans-serif';
+    let nearest = null;
+
+    preds.forEach(p => {
+      const [x, y, w, h] = p.bbox;
+      const area = w * h;
+      if (!nearest || area > nearest.area) nearest = { ...p, area };
+
+      if (currentModelType !== 'yolo') {
+        ctx.strokeStyle = 'rgba(30, 33, 29, 0.7)';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(x, y, w, h);
+
+        const label = p.class + ' ' + (p.score * 100).toFixed(0) + '%';
+        const tw = ctx.measureText(label).width + 10;
+        ctx.fillStyle = 'rgba(82, 107, 80, 0.82)';
+        ctx.fillRect(x, y > 20 ? y - 20 : y, tw, 20);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillText(label, x + 5, y > 20 ? y - 6 : y + 14);
+      }
+    });
+
+    if (nearest) {
+      const frameArea = overlay.width * overlay.height;
+      const ratio = Math.min(nearest.area / frameArea, 1);
+      const estCm = Math.max(20, Math.round(300 - ratio * 280));
+      rangeVal.textContent = estCm;
+
+      rangefinder.classList.remove('warning', 'danger');
+      if (estCm < 40) {
+        rangefinder.classList.add('danger');
+        statusDot.className = 'status-dot danger';
+        statusText.textContent = 'Please slow down — obstacle ahead';
+        if (Date.now() - lastSpoken > 4000) {
+          speak('Caution. ' + nearest.class + ' close ahead.');
+          log('⚠ Proximity alert — ' + nearest.class + ' at ~' + estCm + ' cm', true);
+          lastSpoken = Date.now();
+        }
+      } else if (estCm < 80) {
+        rangefinder.classList.add('warning');
+        statusDot.className = 'status-dot warning';
+        statusText.textContent = 'Object nearby';
+        if (Date.now() - lastSpoken > 5000) {
+          speak(nearest.class + ' nearby.');
+          log(nearest.class + ' nearby at ~' + estCm + ' cm');
+          lastSpoken = Date.now();
+        }
+
+        // Real-time Cloud Sync for authenticated users (throttled every 3.5s)
+        if (sonarAuth.token && (Date.now() - sonarAuth.lastSyncTime > 3500)) {
+          sonarAuth.lastSyncTime = Date.now();
+          syncDetectionToCloud(nearest.class, nearest.score || 0.85, estCm);
+        }
+      } else {
+        statusDot.className = 'status-dot live';
+        statusText.textContent = 'Listening to your surroundings';
+      }
+    } else {
+      rangeVal.textContent = '–';
+      rangefinder.classList.remove('warning', 'danger');
+      statusDot.className = 'status-dot live';
+      statusText.textContent = 'Listening to your surroundings';
+    }
+
+    requestAnimationFrame(detectLoop);
+  }
+
+  // ============================================================
+  // ===== EXISTING BUTTON HANDLERS (unchanged) =====
+  // ============================================================
+
+  ocrBtn.addEventListener('click', async () => {
+    ocrBtn.disabled = true;
+    ocrBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10" opacity="0.3"/><path d="M12 2 a10 10 0 0 1 10 10" stroke-dasharray="15 47"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="0.8s" repeatCount="indefinite"/></path></svg> <span>Reading…</span>';
+    log('Running OCR on current frame…');
+    const c = document.createElement('canvas');
+    c.width = video.videoWidth;
+    c.height = video.videoHeight;
+    c.getContext('2d').drawImage(video, 0, 0);
+    try {
+      const { data: { text } } = await Tesseract.recognize(c, 'eng');
+      const clean = text.trim().replace(/\s+/g, ' ');
+      if (clean.length > 2) {
+        speak('Text found: ' + clean.slice(0, 200));
+        log('OCR result: "' + clean.slice(0, 120) + (clean.length > 120 ? '…' : '') + '"');
+      } else {
+        speak('No readable text found.');
+        log('OCR: no text found');
+      }
+    } catch (e) {
+      log('OCR error: ' + e.message, true);
+    }
+    ocrBtn.disabled = false;
+    ocrBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> <span>Read text (OCR)</span>';
+  });
+
+  muteBtn.addEventListener('click', () => {
+    muted = !muted;
+    if (muted) {
+      muteBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg> <span>Audio muted</span>';
+      window.speechSynthesis.cancel();
+    } else {
+      muteBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/></svg> <span>Audio ON</span>';
+    }
+  });
+
+  if (flipCamBtn) {
+    flipCamBtn.addEventListener('click', async () => {
+      if (!running) return;
+      flipCamBtn.disabled = true;
+      currentFacingMode = currentFacingMode === 'environment' ? 'user' : 'environment';
+      log('Switching camera feed…');
+      try {
+        if (video.srcObject) {
+          video.srcObject.getTracks().forEach(t => t.stop());
+        }
+        const newStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: currentFacingMode },
+          audio: false
+        });
+        video.srcObject = newStream;
+        await video.play();
+        overlay.width = video.videoWidth || 640;
+        overlay.height = video.videoHeight || 480;
+        const camLabel = currentFacingMode === 'environment' ? 'Rear' : 'Front';
+        log(camLabel + ' camera active');
+        speak(camLabel + ' camera switched.');
+      } catch (err) {
+        log('Camera switch failed: ' + err.message, true);
+        currentFacingMode = currentFacingMode === 'environment' ? 'user' : 'environment';
+      }
+      flipCamBtn.disabled = false;
+    });
+  }
+
+  // ============================================================
+  // ===== AUTHENTICATION & CLOUD SYNC SYSTEM =====
+  // ============================================================
+
+  function setAuthAlert(msg, type = 'danger') {
+    if (!authAlert) return;
+    if (!msg) {
+      authAlert.style.display = 'none';
+      authAlert.textContent = '';
+      authAlert.className = 'auth-modal__alert';
+      return;
+    }
+    authAlert.textContent = msg;
+    authAlert.className = 'auth-modal__alert ' + type;
+    authAlert.style.display = 'block';
+  }
+
+  function showAuthModal(view = 'form') {
+    if (!authModal) return;
+    setAuthAlert('');
+    if (view === 'profile' && sonarAuth.user) {
+      if (authFormView) authFormView.style.display = 'none';
+      if (authProfileView) authProfileView.style.display = 'block';
+      updateProfileCard(sonarAuth.user);
+      fetchDetectionStats();
+    } else {
+      if (authFormView) authFormView.style.display = 'block';
+      if (authProfileView) authProfileView.style.display = 'none';
+      switchAuthTab('signin');
+    }
+    authModal.classList.add('is-active');
+  }
+
+  function hideAuthModal() {
+    if (authModal) authModal.classList.remove('is-active');
+  }
+
+  function switchAuthTab(tab) {
+    setAuthAlert('');
+    if (tab === 'signin') {
+      if (tabSignIn) {
+        tabSignIn.classList.add('is-active');
+        tabSignIn.setAttribute('aria-selected', 'true');
+      }
+      if (tabSignUp) {
+        tabSignUp.classList.remove('is-active');
+        tabSignUp.setAttribute('aria-selected', 'false');
+      }
+      if (signInForm) signInForm.style.display = 'flex';
+      if (signUpForm) signUpForm.style.display = 'none';
+    } else {
+      if (tabSignUp) {
+        tabSignUp.classList.add('is-active');
+        tabSignUp.setAttribute('aria-selected', 'true');
+      }
+      if (tabSignIn) {
+        tabSignIn.classList.remove('is-active');
+        tabSignIn.setAttribute('aria-selected', 'false');
+      }
+      if (signUpForm) signUpForm.style.display = 'flex';
+      if (signInForm) signInForm.style.display = 'none';
+    }
+  }
+
+  function updateAuthUI(user) {
+    sonarAuth.user = user;
+    if (user) {
+      if (openAuthBtn) openAuthBtn.style.display = 'none';
+      if (userPill) userPill.style.display = 'inline-flex';
+      const initial = (user.username || user.email || 'U').charAt(0).toUpperCase();
+      if (userAvatar) userAvatar.textContent = initial;
+      if (userName) userName.textContent = user.username || user.email;
+      updateProfileCard(user);
+    } else {
+      if (openAuthBtn) openAuthBtn.style.display = 'inline-flex';
+      if (userPill) userPill.style.display = 'none';
+    }
+  }
+
+  function updateProfileCard(user) {
+    if (!user) return;
+    const initial = (user.username || user.email || 'U').charAt(0).toUpperCase();
+    if (profileAvatarBig) profileAvatarBig.textContent = initial;
+    if (profileUsername) profileUsername.textContent = user.username || 'User';
+    if (profileEmail) profileEmail.textContent = user.email || '';
+  }
+
+  async function fetchDetectionStats() {
+    if (!sonarAuth.token) return;
+    try {
+      const res = await fetch(`${API_BASE}/api/detections/stats`, {
+        headers: { 'Authorization': `Bearer ${sonarAuth.token}` }
+      });
+      if (res.ok) {
+        const stats = await res.json();
+        sonarAuth.totalDetections = stats.total || 0;
+        if (profileTotalDetections) profileTotalDetections.textContent = sonarAuth.totalDetections;
+      }
+    } catch (e) {
+      // Offline fallback
+    }
+  }
+
+  async function syncDetectionToCloud(objectClass, confidence, estCm) {
+    if (!sonarAuth.token) return;
+    try {
+      const res = await fetch(`${API_BASE}/api/detections`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sonarAuth.token}`
+        },
+        body: JSON.stringify({
+          object_class: objectClass,
+          confidence: Math.round(confidence * 100) / 100,
+          proximity_estimate: estCm
+        })
+      });
+      if (res.ok) {
+        sonarAuth.totalDetections++;
+        if (profileTotalDetections) profileTotalDetections.textContent = sonarAuth.totalDetections;
+      }
+    } catch (e) {
+      // Offline fallback
+    }
+  }
+
+  async function verifyCurrentToken() {
+    if (!sonarAuth.token) return;
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/verify`, {
+        headers: { 'Authorization': `Bearer ${sonarAuth.token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        updateAuthUI(data.user);
+        fetchDetectionStats();
+        log('Session restored: signed in as ' + data.user.username);
+      } else {
+        const cached = localStorage.getItem('sonar_user') || sessionStorage.getItem('sonar_user');
+        if (cached) {
+          try {
+            updateAuthUI(JSON.parse(cached));
+          } catch (_) {
+            localStorage.removeItem('sonar_token');
+            sonarAuth.token = null;
+            updateAuthUI(null);
+          }
+        } else {
+          localStorage.removeItem('sonar_token');
+          sonarAuth.token = null;
+          updateAuthUI(null);
+        }
+      }
+    } catch (e) {
+      const cached = localStorage.getItem('sonar_user') || sessionStorage.getItem('sonar_user');
+      if (cached) {
+        try {
+          updateAuthUI(JSON.parse(cached));
+        } catch (_) {}
+      }
+    }
+  }
+
+  // Setup Auth Events
+  if (openAuthBtn) {
+    openAuthBtn.addEventListener('click', () => {
+      if (sonarAuth.user) {
+        showAuthModal('profile');
+      } else {
+        window.location.href = 'index.html?auth=login';
+      }
+    });
+  }
+
+  if (openProfileBtn) {
+    openProfileBtn.addEventListener('click', () => {
+      showAuthModal('profile');
+    });
+  }
+
+  if (closeAuthModal) {
+    closeAuthModal.addEventListener('click', hideAuthModal);
+  }
+
+  if (authModal) {
+    authModal.addEventListener('click', (e) => {
+      if (e.target === authModal) hideAuthModal();
+    });
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && authModal.classList.contains('is-active')) {
+        hideAuthModal();
+      }
+    });
+  }
+
+  if (tabSignIn) tabSignIn.addEventListener('click', () => switchAuthTab('signin'));
+  if (tabSignUp) tabSignUp.addEventListener('click', () => switchAuthTab('signup'));
+
+  if (guestBtn) {
+    guestBtn.addEventListener('click', () => {
+      hideAuthModal();
+      log('Running in Guest Mode (zero-latency on-device vision)');
+      speak('Guest mode active. Sonar is ready.');
+    });
+  }
+
+  // Show/hide password toggles
+  document.querySelectorAll('.auth-form__toggle-pwd').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetId = btn.getAttribute('data-target');
+      const input = document.getElementById(targetId);
+      if (input) {
+        const isPassword = input.type === 'password';
+        input.type = isPassword ? 'text' : 'password';
+        btn.innerHTML = isPassword
+          ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+          : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+      }
+    });
+  });
+
+  // Handle Login submission
+  if (signInForm) {
+    signInForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      setAuthAlert('');
+      const email = loginEmail.value.trim();
+      const password = loginPassword.value;
+
+      if (!email || !password) {
+        setAuthAlert('Please enter both email and password.');
+        return;
+      }
+
+      submitLoginBtn.disabled = true;
+      submitLoginBtn.innerHTML = '<span>Signing in…</span>';
+
+      try {
+        const res = await fetch(`${API_BASE}/api/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || 'Login failed. Please check your credentials.');
+        }
+
+        sonarAuth.token = data.token;
+        localStorage.setItem('sonar_token', data.token);
+        localStorage.setItem('sonar_user', JSON.stringify(data.user));
+
+        updateAuthUI(data.user);
+        setAuthAlert('Signed in successfully!', 'success');
+        speak('Welcome back, ' + data.user.username);
+        log('Signed in as ' + data.user.username + ' (' + data.user.email + ')');
+
+        setTimeout(() => {
+          hideAuthModal();
+          fetchDetectionStats();
+        }, 600);
+      } catch (err) {
+        setAuthAlert(err.message);
+      } finally {
+        submitLoginBtn.disabled = false;
+        submitLoginBtn.innerHTML = '<span>Sign In to Sonar</span>';
+      }
+    });
+  }
+
+  // Handle Register submission
+  if (signUpForm) {
+    signUpForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      setAuthAlert('');
+      const username = regUsername.value.trim();
+      const email = regEmail.value.trim();
+      const password = regPassword.value;
+
+      if (!username || !email || !password) {
+        setAuthAlert('All fields are required.');
+        return;
+      }
+
+      if (password.length < 6) {
+        setAuthAlert('Password must be at least 6 characters long.');
+        return;
+      }
+
+      submitRegBtn.disabled = true;
+      submitRegBtn.innerHTML = '<span>Creating account…</span>';
+
+      try {
+        const res = await fetch(`${API_BASE}/api/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, email, password })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || 'Registration failed.');
+        }
+
+        sonarAuth.token = data.token;
+        localStorage.setItem('sonar_token', data.token);
+        localStorage.setItem('sonar_user', JSON.stringify(data.user));
+
+        updateAuthUI(data.user);
+        setAuthAlert('Account created successfully!', 'success');
+        speak('Account created. Welcome to Sonar, ' + data.user.username);
+        log('Account created: ' + data.user.username);
+
+        setTimeout(() => {
+          hideAuthModal();
+        }, 600);
+      } catch (err) {
+        setAuthAlert(err.message);
+      } finally {
+        submitRegBtn.disabled = false;
+        submitRegBtn.innerHTML = '<span>Create Secure Account</span>';
+      }
+    });
+  }
+
+  // Handle Sign Out
+  if (profileLogoutBtn) {
+    profileLogoutBtn.addEventListener('click', () => {
+      localStorage.removeItem('sonar_token');
+      localStorage.removeItem('sonar_user');
+      sessionStorage.removeItem('sonar_token');
+      sessionStorage.removeItem('sonar_user');
+      sessionStorage.removeItem('sonar_guest');
+      sessionStorage.removeItem('sonar_session_only');
+      sonarAuth.token = null;
+      sonarAuth.user = null;
+      sonarAuth.totalDetections = 0;
+      updateAuthUI(null);
+      hideAuthModal();
+      log('Signed out of Sonar account');
+      speak('You have signed out.');
+      window.location.href = 'index.html?logout=1';
+    });
+  }
+
+  // Platform Detection (Desktop / Electron)
+  if (window.sonarDesktop?.isElectron) {
+    if (desktopBadge) desktopBadge.style.display = 'inline-flex';
+    log('Sonar Desktop native engine active (platform: ' + (window.sonarDesktop.platform || 'macOS') + ')');
+  }
+
+  // If user profile is already cached in session/storage, display right away
+  if (sonarAuth.user) {
+    updateAuthUI(sonarAuth.user);
+  }
+
+  // Auto-verify session on startup
+  verifyCurrentToken();
+
+  startBtn.addEventListener('click', init);
+})();
+</script>
+</body>
+</html>

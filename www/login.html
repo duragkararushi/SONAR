@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Sonar — Sign in</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg:#F5F2EA; --surface:#FBFAF6; --surface-muted:#ECE9E0;
+    --text:#1E211D; --text-muted:#686B63;
+    --accent:#526B50; --accent-dark:#354A35;
+    --border:#D9D6CC;
+    --danger:#8B3A3A; --danger-bg:#F2E4E4;
+    --ok:#354A35; --ok-bg:#E3ECE1;
+    --serif:'DM Serif Display',Georgia,serif;
+    --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%}
+  body{
+    background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    display:flex;align-items:center;justify-content:center;
+    padding:max(24px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom));
+    min-height:100vh;
+    background-image:radial-gradient(circle at 20% 10%,rgba(82,107,80,.10),transparent 45%),
+                     radial-gradient(circle at 85% 90%,rgba(82,107,80,.08),transparent 40%);
+  }
+  .card{
+    width:100%;max-width:430px;background:var(--surface);
+    border:1px solid var(--border);border-radius:20px;padding:36px 32px 28px;
+    box-shadow:0 18px 50px -24px rgba(30,33,29,.35);
+  }
+  .brand{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+  .brand svg{flex:none}
+  .brand span{font-family:var(--serif);font-size:30px;letter-spacing:.2px}
+  .tagline{color:var(--text-muted);font-size:14px;margin-bottom:24px}
+
+  .tabs{
+    position:relative;display:grid;grid-template-columns:1fr 1fr;
+    background:var(--surface-muted);border-radius:12px;padding:4px;margin-bottom:24px;
+  }
+  .tabs button{
+    position:relative;z-index:1;background:none;border:0;padding:10px 0;
+    font-size:14px;font-weight:600;color:var(--text-muted);border-radius:9px;
+    transition:color .2s;
+    cursor:pointer;
+  }
+  .tabs button[aria-selected="true"]{color:var(--text)}
+  .tabs .pill{
+    position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);
+    background:var(--surface);border-radius:9px;box-shadow:0 1px 3px rgba(0,0,0,.12);
+    transition:transform .28s cubic-bezier(.25,.46,.45,.94);
+  }
+  .tabs.signup .pill{transform:translateX(100%)}
+
+  h1{font-family:var(--serif);font-weight:400;font-size:26px;margin-bottom:4px}
+  .sub{color:var(--text-muted);font-size:14px;margin-bottom:20px}
+
+  form{display:none;animation:fade .3s ease}
+  form.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  .field{margin-bottom:16px}
+  label{display:block;font-size:13px;font-weight:600;margin-bottom:6px}
+  .input-wrap{position:relative}
+  input{
+    width:100%;padding:12px 14px;font:inherit;font-size:15px;color:var(--text);
+    background:#fff;border:1.5px solid var(--border);border-radius:10px;
+    transition:border-color .15s,box-shadow .15s;
+  }
+  input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(82,107,80,.18)}
+  input.invalid{border-color:var(--danger)}
+  .input-wrap input{padding-right:44px}
+  .eye{
+    position:absolute;right:6px;top:50%;transform:translateY(-50%);
+    background:none;border:0;color:var(--text-muted);padding:8px;border-radius:8px;display:flex;
+    cursor:pointer;
+  }
+  .eye:hover{color:var(--text)}
+  .eye:focus-visible,.tabs button:focus-visible,.btn:focus-visible,.link:focus-visible{
+    outline:2px solid var(--accent);outline-offset:2px}
+  .err{color:var(--danger);font-size:12.5px;margin-top:5px;min-height:0}
+
+  .meter{display:flex;gap:4px;margin-top:8px}
+  .meter i{flex:1;height:4px;border-radius:2px;background:var(--border);transition:background .2s}
+  .meter[data-s="1"] i:nth-child(-n+1){background:#B4503F}
+  .meter[data-s="2"] i:nth-child(-n+2){background:#C28B2C}
+  .meter[data-s="3"] i:nth-child(-n+3){background:#7E9A57}
+  .meter[data-s="4"] i:nth-child(-n+4){background:var(--accent)}
+  .meter-label{font-size:12px;color:var(--text-muted);margin-top:4px}
+
+  .row{display:flex;align-items:center;justify-content:space-between;font-size:13px;margin-bottom:18px}
+  .check{display:flex;align-items:center;gap:8px;color:var(--text-muted);cursor:pointer}
+  .check input{width:16px;height:16px;accent-color:var(--accent);padding:0}
+
+  .btn{
+    width:100%;padding:13px;font-size:15px;font-weight:600;border:0;border-radius:10px;
+    background:var(--accent-dark);color:#fff;display:flex;align-items:center;justify-content:center;gap:10px;
+    transition:background .15s,transform .05s;
+    cursor:pointer;
+  }
+  .btn:hover{background:var(--accent)}
+  .btn:active{transform:scale(.99)}
+  .btn:disabled{opacity:.7;cursor:progress}
+  .btn.ghost{background:transparent;color:var(--accent-dark);border:1.5px solid var(--border);margin-top:10px}
+  .btn.ghost:hover{background:var(--surface-muted)}
+  .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .alert{display:none;padding:11px 14px;border-radius:10px;font-size:13.5px;margin-bottom:16px}
+  .alert.show{display:block}
+  .alert.error{background:var(--danger-bg);color:var(--danger)}
+  .alert.success{background:var(--ok-bg);color:var(--ok)}
+
+  .switch{text-align:center;font-size:13.5px;color:var(--text-muted);margin-top:18px}
+  .link{background:none;border:0;color:var(--accent-dark);font:inherit;font-weight:600;text-decoration:underline;cursor:pointer}
+  .divider{display:flex;align-items:center;gap:12px;color:var(--text-muted);font-size:12px;margin:18px 0 0}
+  .divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--border)}
+
+  @media (max-width:480px){.card{padding:28px 20px 22px}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main class="card">
+  <div class="brand">
+    <svg width="34" height="34" viewBox="0 0 34 34" fill="none" aria-hidden="true">
+      <circle cx="17" cy="17" r="3.5" fill="#526B50"/>
+      <circle cx="17" cy="17" r="8.5" stroke="#526B50" stroke-width="2" opacity=".7"/>
+      <circle cx="17" cy="17" r="14" stroke="#526B50" stroke-width="2" opacity=".35"/>
+    </svg>
+    <span>Sonar</span>
+  </div>
+  <p class="tagline">Assistive vision for the world around you.</p>
+
+  <div class="tabs" id="tabs" role="tablist">
+    <span class="pill"></span>
+    <button role="tab" id="tab-login" aria-selected="true" aria-controls="loginForm">Log in</button>
+    <button role="tab" id="tab-signup" aria-selected="false" aria-controls="signupForm">Sign up</button>
+  </div>
+
+  <div class="alert" id="alert" role="alert" aria-live="polite"></div>
+
+  <!-- LOG IN -->
+  <form id="loginForm" class="active" novalidate>
+    <h1>Welcome back</h1>
+    <p class="sub">Log in to continue to Sonar.</p>
+
+    <div class="field">
+      <label for="loginEmail">Email</label>
+      <input id="loginEmail" type="email" autocomplete="email" placeholder="you@example.com" />
+      <div class="err" data-for="loginEmail"></div>
+    </div>
+    <div class="field">
+      <label for="loginPassword">Password</label>
+      <div class="input-wrap">
+        <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Your password" />
+        <button type="button" class="eye" data-target="loginPassword" aria-label="Show password"></button>
+      </div>
+      <div class="err" data-for="loginPassword"></div>
+    </div>
+    <div class="row">
+      <label class="check"><input type="checkbox" id="remember" checked /> Remember me</label>
+    </div>
+    <button class="btn" type="submit" id="loginBtn">Log in</button>
+    <div class="switch">New to Sonar? <button type="button" class="link" data-go="signup">Create an account</button></div>
+  </form>
+
+  <!-- SIGN UP -->
+  <form id="signupForm" novalidate>
+    <h1>Create your account</h1>
+    <p class="sub">It takes less than a minute.</p>
+
+    <div class="field">
+      <label for="regName">Username</label>
+      <input id="regName" type="text" autocomplete="username" placeholder="Your name" />
+      <div class="err" data-for="regName"></div>
+    </div>
+    <div class="field">
+      <label for="regEmail">Email</label>
+      <input id="regEmail" type="email" autocomplete="email" placeholder="you@example.com" />
+      <div class="err" data-for="regEmail"></div>
+    </div>
+    <div class="field">
+      <label for="regPassword">Password</label>
+      <div class="input-wrap">
+        <input id="regPassword" type="password" autocomplete="new-password" placeholder="At least 6 characters" />
+        <button type="button" class="eye" data-target="regPassword" aria-label="Show password"></button>
+      </div>
+      <div class="meter" id="meter" data-s="0"><i></i><i></i><i></i><i></i></div>
+      <div class="meter-label" id="meterLabel">&nbsp;</div>
+      <div class="err" data-for="regPassword"></div>
+    </div>
+    <div class="field">
+      <label for="regConfirm">Confirm password</label>
+      <input id="regConfirm" type="password" autocomplete="new-password" placeholder="Repeat password" />
+      <div class="err" data-for="regConfirm"></div>
+    </div>
+    <button class="btn" type="submit" id="signupBtn">Create account</button>
+    <div class="switch">Already have an account? <button type="button" class="link" data-go="login">Log in</button></div>
+  </form>
+
+  <div class="divider">or</div>
+  <button class="btn ghost" type="button" id="guestBtn">Continue as guest</button>
+</main>
+
+<script>
+(() => {
+  'use strict';
+
+  // ====== CONFIG ======
+  const REDIRECT_URL = 'sonar.html';          // page to open after auth
+  const USERS_KEY = 'sonar_users_local';      // local demo "database" fallback
+  const API_BASE = (window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'capacitor:')
+    ? 'http://localhost:5050'
+    : '';
+
+  // ====== HELPERS ======
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const tabs = $('#tabs'), alertBox = $('#alert');
+  const forms = { login: $('#loginForm'), signup: $('#signupForm') };
+
+  const EYE = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+  const EYE_OFF = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+
+  const store = {
+    get(k, fallback) { try { const v = localStorage.getItem(k); return v === null ? fallback : JSON.parse(v); } catch { return fallback; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch { return false; } }
+  };
+
+  async function hash(text) {
+    try {
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('sonar:' + text));
+      return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+    } catch { // non-secure context fallback
+      let h = 5381; for (const c of 'sonar:' + text) h = ((h << 5) + h + c.charCodeAt(0)) >>> 0;
+      return 'f' + h.toString(16);
+    }
+  }
+  const token = () => Array.from(crypto.getRandomValues(new Uint8Array(24)), b => b.toString(16).padStart(2, '0')).join('');
+  const validEmail = e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+
+  // ====== UI: tabs ======
+  function switchTo(which) {
+    const isSignup = which === 'signup';
+    tabs.classList.toggle('signup', isSignup);
+    $('#tab-login').setAttribute('aria-selected', String(!isSignup));
+    $('#tab-signup').setAttribute('aria-selected', String(isSignup));
+    forms.login.classList.toggle('active', !isSignup);
+    forms.signup.classList.toggle('active', isSignup);
+    showAlert('');
+    clearErrors();
+    (isSignup ? $('#regName') : $('#loginEmail')).focus();
+    history.replaceState(null, '', isSignup ? '#signup' : '#login');
+  }
+  $('#tab-login').onclick = () => switchTo('login');
+  $('#tab-signup').onclick = () => switchTo('signup');
+  $$('[data-go]').forEach(b => b.onclick = () => switchTo(b.dataset.go));
+
+  // ====== UI: alerts + field errors ======
+  function showAlert(msg, type = 'error') {
+    alertBox.className = 'alert' + (msg ? ' show ' + type : '');
+    alertBox.textContent = msg;
+  }
+  function fieldError(id, msg) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.toggle('invalid', !!msg);
+    const errEl = $(`.err[data-for="${id}"]`);
+    if (errEl) errEl.textContent = msg || '';
+  }
+  function clearErrors() {
+    $$('input').forEach(i => i.classList.remove('invalid'));
+    $$('.err').forEach(e => e.textContent = '');
+  }
+  $$('input').forEach(i => i.addEventListener('input', () => fieldError(i.id, '')));
+
+  // ====== UI: show/hide password ======
+  $$('.eye').forEach(btn => {
+    btn.innerHTML = EYE;
+    btn.onclick = () => {
+      const input = document.getElementById(btn.dataset.target);
+      if (!input) return;
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      btn.innerHTML = show ? EYE_OFF : EYE;
+      btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+    };
+  });
+
+  // ====== UI: password strength meter ======
+  $('#regPassword').addEventListener('input', e => {
+    const p = e.target.value;
+    let s = 0;
+    if (p.length >= 6) s++;
+    if (p.length >= 10) s++;
+    if (/[A-Z]/.test(p) && /[a-z]/.test(p)) s++;
+    if (/\d/.test(p) && /[^A-Za-z0-9]/.test(p)) s++;
+    if (!p) s = 0;
+    $('#meter').dataset.s = s;
+    $('#meterLabel').textContent = p ? ['Too short', 'Weak', 'Fair', 'Good', 'Strong'][s] : '\u00A0';
+  });
+
+  // ====== BUTTON loading state ======
+  function setLoading(btn, on, label) {
+    btn.disabled = on;
+    btn.innerHTML = on ? '<span class="spinner"></span><span>Please wait…</span>' : label;
+  }
+
+  // ====== SESSION + REDIRECT ======
+  function startSession(user, persist, userToken = null) {
+    const t = userToken || token();
+    const publicUser = { id: user.id, username: user.username, email: user.email };
+    // Same keys the Sonar page already reads, so it recognises the session.
+    localStorage.setItem('sonar_token', t);
+    localStorage.setItem('sonar_user', JSON.stringify(publicUser));
+    sessionStorage.removeItem('sonar_guest');
+    if (!persist) sessionStorage.setItem('sonar_session_only', '1');
+    else sessionStorage.removeItem('sonar_session_only');
+  }
+  function goToSonar(msg) {
+    showAlert(msg, 'success');
+    document.body.style.pointerEvents = 'none';
+    setTimeout(() => { window.location.href = REDIRECT_URL; }, 800);
+  }
+
+  // Already signed in? Skip straight to Sonar.
+  if (localStorage.getItem('sonar_token') && localStorage.getItem('sonar_user') && !location.search.includes('logout')) {
+    window.location.replace(REDIRECT_URL);
+  }
+  if (location.search.includes('logout')) {
+    localStorage.removeItem('sonar_token');
+    localStorage.removeItem('sonar_user');
+    sessionStorage.removeItem('sonar_guest');
+    sessionStorage.removeItem('sonar_session_only');
+    history.replaceState(null, '', location.pathname);
+  }
+
+  // ====== LOG IN ======
+  forms.login.addEventListener('submit', async e => {
+    e.preventDefault();
+    showAlert(''); clearErrors();
+    const email = $('#loginEmail').value.trim().toLowerCase();
+    const pw = $('#loginPassword').value;
+    let bad = false;
+    if (!validEmail(email)) { fieldError('loginEmail', 'Enter a valid email address.'); bad = true; }
+    if (!pw) { fieldError('loginPassword', 'Enter your password.'); bad = true; }
+    if (bad) return;
+
+    const btn = $('#loginBtn');
+    setLoading(btn, true);
+
+    // Try live backend API first
+    let loggedIn = false;
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password: pw })
+      });
+      const data = await res.json();
+      if (res.ok && data.token && data.user) {
+        startSession(data.user, $('#remember').checked, data.token);
+        goToSonar('Welcome back, ' + data.user.username + '! Opening Sonar…');
+        loggedIn = true;
+        return;
+      } else if (res.status === 400 || res.status === 401) {
+        setLoading(btn, false, 'Log in');
+        showAlert(data.error || 'Incorrect email or password.');
+        return;
+      }
+    } catch (netErr) {
+      // Backend unavailable / offline -> fallback to local store
+    }
+
+    if (!loggedIn) {
+      await new Promise(r => setTimeout(r, 450));
+      const users = store.get(USERS_KEY, []);
+      const user = users.find(u => u.email === email);
+      if (!user || user.hash !== await hash(pw)) {
+        setLoading(btn, false, 'Log in');
+        showAlert('Incorrect email or password.');
+        return;
+      }
+      startSession(user, $('#remember').checked);
+      goToSonar('Welcome back, ' + user.username + '! Opening Sonar…');
+    }
+  });
+
+  // ====== SIGN UP ======
+  forms.signup.addEventListener('submit', async e => {
+    e.preventDefault();
+    showAlert(''); clearErrors();
+    const username = $('#regName').value.trim();
+    const email = $('#regEmail').value.trim().toLowerCase();
+    const pw = $('#regPassword').value;
+    const confirm = $('#regConfirm').value;
+    let bad = false;
+    if (username.length < 2) { fieldError('regName', 'Username must be at least 2 characters.'); bad = true; }
+    if (!validEmail(email)) { fieldError('regEmail', 'Enter a valid email address.'); bad = true; }
+    if (pw.length < 6) { fieldError('regPassword', 'Password must be at least 6 characters.'); bad = true; }
+    if (confirm !== pw) { fieldError('regConfirm', 'Passwords do not match.'); bad = true; }
+    if (bad) return;
+
+    const btn = $('#signupBtn');
+    setLoading(btn, true);
+
+    // Try live backend API first
+    let registered = false;
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password: pw })
+      });
+      const data = await res.json();
+      if (res.ok && data.token && data.user) {
+        startSession(data.user, true, data.token);
+        goToSonar('Account created! Opening Sonar…');
+        registered = true;
+        return;
+      } else if (res.status === 400) {
+        setLoading(btn, false, 'Create account');
+        showAlert(data.error || 'Registration failed.');
+        return;
+      }
+    } catch (netErr) {
+      // Backend unavailable / offline -> fallback to local store
+    }
+
+    if (!registered) {
+      await new Promise(r => setTimeout(r, 500));
+      const users = store.get(USERS_KEY, []);
+      if (users.some(u => u.email === email)) {
+        setLoading(btn, false, 'Create account');
+        fieldError('regEmail', 'An account with this email already exists.');
+        return;
+      }
+      const user = { id: token().slice(0, 12), username, email, hash: await hash(pw), created: Date.now() };
+      users.push(user);
+      if (!store.set(USERS_KEY, users)) {
+        setLoading(btn, false, 'Create account');
+        showAlert('Could not save your account. Is browser storage disabled?');
+        return;
+      }
+      startSession(user, true);
+      goToSonar('Account created! Opening Sonar…');
+    }
+  });
+
+  // ====== GUEST ======
+  $('#guestBtn').onclick = () => {
+    localStorage.removeItem('sonar_token');
+    localStorage.removeItem('sonar_user');
+    sessionStorage.setItem('sonar_guest', '1');
+    window.location.href = REDIRECT_URL;
+  };
+
+  // Deep-link to the sign-up tab via #signup
+  if (location.hash === '#signup') switchTo('signup');
+})();
+</script>
+</body>
+</html>

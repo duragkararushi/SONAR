@@ -1,0 +1,49 @@
+# Dependencies
+node_modules/
+
+# Environment variables & local secrets
+.env
+.env.local
+.env.*.local
+
+# Database & runtime data
+*.sqlite
+*.sqlite3
+*.db
+database.sqlite
+
+# Uploads
+uploads/*
+!uploads/.gitkeep
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Operating System files
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+
+# IDE & Editor files
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# Android build outputs & local properties
+.gradle/
+**/build/
+**/local.properties
+**/.idea/
+**/*.iml
+**/*.apk
+**/*.aab
+
+# iOS build outputs & Pods
+**/Pods/
+**/DerivedData/
+**/*.xcworkspace/xcuserdata/
+**/*.xcodeproj/xcuserdata/

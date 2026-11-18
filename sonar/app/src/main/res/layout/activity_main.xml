@@ -1,0 +1,1190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg"
+    android:orientation="vertical"
+    tools:ignore="HardcodedText">
+
+    <!-- ============================================================
+         TOP BAR
+         ============================================================ -->
+    <LinearLayout
+        android:id="@+id/topBar"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:background="@color/bg"
+        android:elevation="3dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
+
+        <ImageView
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:contentDescription="@null"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_sonar_mark" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_weight="1"
+            android:letterSpacing="0.06"
+            android:text="SONAR"
+            android:textColor="@color/text"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/navDemo"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_pill_primary"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:minWidth="48dp"
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp"
+            android:text="Try the demo"
+            android:textColor="@color/white"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/border_light" />
+
+    <!-- ============================================================
+         SCROLLABLE CONTENT
+         ============================================================ -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- ========================================================
+                 1. HERO
+                 ======================================================== -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="20dp"
+                android:paddingTop="32dp"
+                android:paddingEnd="20dp"
+                android:paddingBottom="28dp">
+
+                <TextView
+                    style="@style/Sonar.Eyebrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Assistive vision system" />
+
+                <TextView
+                    style="@style/Sonar.H1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="See the world,\nthrough sound." />
+
+                <TextView
+                    style="@style/Sonar.Body"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Sonar is an assistive vision system designed to help visually impaired users understand their surroundings through real-time object detection, proximity awareness and spoken feedback." />
+
+                <TextView
+                    style="@style/Sonar.Caption"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="The prototype runs entirely on-device — no servers, no data leaves this phone." />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="26dp"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/heroPrimary"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_pill_primary"
+                        android:clickable="true"
+                        android:ellipsize="end"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:text="Experience the demo"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/heroSecondary"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_pill_secondary"
+                        android:clickable="true"
+                        android:ellipsize="end"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:text="How it works"
+                        android:textColor="@color/text"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/border_light" />
+
+            <!-- ========================================================
+                 2. LIVE DEMO
+                 ======================================================== -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/surface"
+                android:orientation="vertical"
+                android:paddingTop="40dp"
+                android:paddingBottom="40dp">
+
+                <TextView
+                    style="@style/Sonar.Eyebrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:text="Live experience" />
+
+                <TextView
+                    style="@style/Sonar.H2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="8dp"
+                    android:text="Try the prototype" />
+
+                <TextView
+                    style="@style/Sonar.Body"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="20dp"
+                    android:gravity="center"
+                    android:text="Point your camera at the room around you. Sonar will identify objects, estimate distances and describe the scene aloud." />
+
+                <!-- Start button -->
+                <TextView
+                    android:id="@+id/startBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="22dp"
+                    android:background="@drawable/bg_pill_primary"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:paddingStart="28dp"
+                    android:paddingEnd="28dp"
+                    android:text="▶   Start camera &amp; detection"
+                    android:textColor="@color/white"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <!-- ===== DEMO PANEL ===== -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginEnd="16dp"
+                    android:background="@drawable/bg_card"
+                    android:clipToOutline="true"
+                    android:orientation="vertical">
+
+                    <!-- Camera stage -->
+                    <com.sonar.app.widget.AspectRatioFrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/cam_bg"
+                        app:aspectRatio="1.3333">
+
+                        <androidx.camera.view.PreviewView
+                            android:id="@+id/previewView"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            app:implementationMode="performance"
+                            app:scaleType="fitCenter" />
+
+                        <com.sonar.app.widget.OverlayView
+                            android:id="@+id/overlay"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent" />
+
+                        <!-- Placeholder -->
+                        <LinearLayout
+                            android:id="@+id/placeholder"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="28dp">
+
+                            <ImageView
+                                android:layout_width="44dp"
+                                android:layout_height="44dp"
+                                android:alpha="0.45"
+                                android:contentDescription="@null"
+                                android:importantForAccessibility="no"
+                                android:src="@drawable/ic_camera_outline"
+                                app:tint="@color/placeholder_icon" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="14dp"
+                                android:gravity="center"
+                                android:text="Press Start camera to begin. Detected objects will be outlined and described aloud."
+                                android:textColor="@color/placeholder_text"
+                                android:textSize="13sp" />
+                        </LinearLayout>
+
+                        <!-- Rangefinder badge -->
+                        <LinearLayout
+                            android:id="@+id/rangefinder"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="bottom|start"
+                            android:layout_margin="12dp"
+                            android:background="@drawable/bg_badge"
+                            android:orientation="vertical"
+                            android:paddingStart="14dp"
+                            android:paddingTop="8dp"
+                            android:paddingEnd="14dp"
+                            android:paddingBottom="8dp"
+                            android:visibility="gone">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Nearest object"
+                                android:textColor="@color/badge_label"
+                                android:textSize="11sp" />
+
+                            <TextView
+                                android:id="@+id/rangeVal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="–"
+                                android:textColor="@color/white"
+                                android:textSize="19sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="cm (estimated)"
+                                android:textColor="@color/badge_label"
+                                android:textSize="11sp" />
+                        </LinearLayout>
+                    </com.sonar.app.widget.AspectRatioFrameLayout>
+
+                    <!-- Side panel -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="18dp">
+
+                        <TextView
+                            style="@style/Sonar.H3"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="What Sonar hears" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="Real-time scene awareness"
+                            android:textColor="@color/text_muted"
+                            android:textSize="13sp" />
+
+                        <!-- Status -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:background="@drawable/bg_status"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingStart="14dp"
+                            android:paddingTop="10dp"
+                            android:paddingEnd="14dp"
+                            android:paddingBottom="10dp">
+
+                            <View
+                                android:id="@+id/statusDot"
+                                android:layout_width="9dp"
+                                android:layout_height="9dp"
+                                android:background="@drawable/bg_dot_idle"
+                                android:importantForAccessibility="no" />
+
+                            <TextView
+                                android:id="@+id/statusText"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="10dp"
+                                android:layout_weight="1"
+                                android:text="Camera ready"
+                                android:textColor="@color/text_muted"
+                                android:textSize="13sp" />
+                        </LinearLayout>
+
+                        <!-- Quick actions grid -->
+                        <GridLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:alignmentMode="alignMargins"
+                            android:columnCount="2"
+                            android:rowCount="3"
+                            android:useDefaultMargins="false">
+
+                            <TextView
+                                android:id="@+id/speakBtn"
+                                style="@style/Sonar.ActionBtn"
+                                android:text="🔊  Speak scene" />
+
+                            <TextView
+                                android:id="@+id/ocrBtn"
+                                style="@style/Sonar.ActionBtn"
+                                android:text="📄  Read text (OCR)" />
+
+                            <TextView
+                                android:id="@+id/contOcrBtn"
+                                style="@style/Sonar.ActionBtn"
+                                android:text="👁  Auto OCR: OFF" />
+
+                            <TextView
+                                android:id="@+id/voiceBtn"
+                                style="@style/Sonar.ActionBtn"
+                                android:text="🎙  Voice: OFF" />
+
+                            <TextView
+                                android:id="@+id/muteBtn"
+                                style="@style/Sonar.ActionBtn"
+                                android:text="🔈  Audio ON" />
+
+                            <TextView
+                                android:id="@+id/flipCamBtn"
+                                style="@style/Sonar.ActionBtn"
+                                android:text="🔄  Flip camera" />
+                        </GridLayout>
+
+                        <!-- Model selector -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:letterSpacing="0.06"
+                            android:text="DETECTION ENGINE"
+                            android:textColor="@color/text_light"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+
+                        <Spinner
+                            android:id="@+id/modelSelect"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:layout_marginTop="4dp"
+                            android:background="@drawable/bg_pill_secondary"
+                            android:paddingStart="12dp"
+                            android:paddingEnd="12dp"
+                            android:spinnerMode="dropdown" />
+
+                        <!-- Teach button -->
+                        <TextView
+                            android:id="@+id/teachBtn"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:layout_marginTop="8dp"
+                            android:background="@drawable/bg_pill_secondary"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center"
+                            android:text="✎  Teach Sonar a new object"
+                            android:textColor="@color/text"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <!-- Waveform -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Audio"
+                                android:textColor="@color/text_light"
+                                android:textSize="12sp" />
+
+                            <LinearLayout
+                                android:id="@+id/waveform"
+                                android:layout_width="0dp"
+                                android:layout_height="22dp"
+                                android:layout_marginStart="10dp"
+                                android:layout_weight="1"
+                                android:gravity="bottom"
+                                android:orientation="horizontal" />
+                        </LinearLayout>
+
+                        <!-- Log -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:letterSpacing="0.06"
+                            android:text="DETECTION LOG"
+                            android:textColor="@color/text_light"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+
+                        <androidx.core.widget.NestedScrollView
+                            android:id="@+id/logScroll"
+                            android:layout_width="match_parent"
+                            android:layout_height="150dp"
+                            android:layout_marginTop="6dp"
+                            android:background="@drawable/bg_log"
+                            android:nestedScrollingEnabled="true"
+                            android:padding="12dp"
+                            android:scrollbars="none">
+
+                            <TextView
+                                android:id="@+id/logText"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="monospace"
+                                android:lineSpacingMultiplier="1.3"
+                                android:text="Waiting for camera…"
+                                android:textColor="@color/text_muted"
+                                android:textSize="12sp" />
+                        </androidx.core.widget.NestedScrollView>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/border_light" />
+
+            <!-- ========================================================
+                 3. CAPABILITIES
+                 ======================================================== -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="20dp"
+                android:paddingTop="40dp"
+                android:paddingEnd="20dp"
+                android:paddingBottom="40dp">
+
+                <TextView
+                    style="@style/Sonar.Eyebrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Core capabilities" />
+
+                <TextView
+                    style="@style/Sonar.H2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Real-time awareness" />
+
+                <TextView
+                    style="@style/Sonar.Body"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Sonar translates visual information into spoken guidance — helping users navigate spaces, identify objects and read text independently." />
+
+                <include layout="@layout/item_capability" />
+                <include layout="@layout/item_capability" />
+                <include layout="@layout/item_capability" />
+                <include layout="@layout/item_capability" />
+                <include layout="@layout/item_capability" />
+                <include layout="@layout/item_capability" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/border_light" />
+
+            <!-- ========================================================
+                 4. HOW IT WORKS
+                 ======================================================== -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/surface"
+                android:orientation="vertical"
+                android:paddingStart="20dp"
+                android:paddingTop="40dp"
+                android:paddingEnd="20dp"
+                android:paddingBottom="40dp">
+
+                <TextView
+                    style="@style/Sonar.Eyebrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:text="System architecture" />
+
+                <TextView
+                    style="@style/Sonar.H2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center"
+                    android:text="How Sonar understands the world" />
+
+                <TextView
+                    style="@style/Sonar.Body"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center"
+                    android:text="Three parallel pipelines work together — turning visual input, spatial data and voice commands into meaningful audio guidance." />
+
+                <!-- Vision pipeline -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="26dp"
+                    android:background="@drawable/bg_card_soft"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        style="@style/Sonar.H3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:text="Vision pipeline" />
+
+                    <TextView style="@style/Sonar.StepLabel"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp" android:text="Camera input" />
+                    <TextView style="@style/Sonar.StepDesc"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="Captures the visual scene" />
+
+                    <TextView style="@style/Sonar.StepLabel"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp" android:text="Object detection" />
+                    <TextView style="@style/Sonar.StepDesc"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="Identifies and locates objects" />
+
+                    <TextView style="@style/Sonar.StepLabel"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp" android:text="Audio description" />
+                    <TextView style="@style/Sonar.StepDesc"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="Speaks what it sees" />
+                </LinearLayout>
+
+                <!-- Proximity pipeline -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:background="@drawable/bg_card_soft"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        style="@style/Sonar.H3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:text="Proximity pipeline" />
+
+                    <TextView style="@style/Sonar.StepLabel"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp" android:text="Distance estimation" />
+                    <TextView style="@style/Sonar.StepDesc"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="Measures proximity to objects" />
+
+                    <TextView style="@style/Sonar.StepLabel"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp" android:text="Risk analysis" />
+                    <TextView style="@style/Sonar.StepDesc"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="Evaluates obstacle risk" />
+
+                    <TextView style="@style/Sonar.StepLabel"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp" android:text="Proximity alert" />
+                    <TextView style="@style/Sonar.StepDesc"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="Warns of nearby obstacles" />
+                </LinearLayout>
+
+                <!-- Voice pipeline -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:background="@drawable/bg_card_soft"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        style="@style/Sonar.H3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:text="Voice pipeline" />
+
+                    <TextView style="@style/Sonar.StepLabel"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp" android:text="Microphone" />
+                    <TextView style="@style/Sonar.StepDesc"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="Listens for voice commands" />
+
+                    <TextView style="@style/Sonar.StepLabel"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp" android:text="Speech recognition" />
+                    <TextView style="@style/Sonar.StepDesc"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="Parses user intent" />
+
+                    <TextView style="@style/Sonar.StepLabel"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp" android:text="Action" />
+                    <TextView style="@style/Sonar.StepDesc"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="Executes the request" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/border_light" />
+
+            <!-- ========================================================
+                 5. SCENARIOS
+                 ======================================================== -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="20dp"
+                android:paddingTop="40dp"
+                android:paddingEnd="20dp"
+                android:paddingBottom="40dp">
+
+                <TextView
+                    style="@style/Sonar.Eyebrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="In practice" />
+
+                <TextView
+                    style="@style/Sonar.H2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="What Sonar helps you do" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="22dp"
+                    android:background="@drawable/bg_card_soft"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView style="@style/Sonar.H3"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Walking through a new building" />
+                    <TextView style="@style/Sonar.Body"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="Navigating unfamiliar indoor spaces with confidence — knowing where doorways, stairs and furniture are located." />
+                    <TextView style="@style/Sonar.Quote"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="“Door ahead. Stairs to your right.”" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:background="@drawable/bg_card_soft"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView style="@style/Sonar.H3"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Finding an object" />
+                    <TextView style="@style/Sonar.Body"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="Locating personal belongings by asking the system to scan the room and report where common objects are." />
+                    <TextView style="@style/Sonar.Quote"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="“Your backpack is on the chair.”" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:background="@drawable/bg_card_soft"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView style="@style/Sonar.H3"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Reading something" />
+                    <TextView style="@style/Sonar.Body"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="Accessing printed information — bus numbers, street signs, product labels, menus — by pointing the camera and asking." />
+                    <TextView style="@style/Sonar.Quote"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="“Bus route 312.”" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:background="@drawable/bg_card_soft"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView style="@style/Sonar.H3"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Moving through a busy space" />
+                    <TextView style="@style/Sonar.Body"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="Receiving continuous updates about nearby people and open paths — making crowded environments less overwhelming." />
+                    <TextView style="@style/Sonar.Quote"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="“Three people ahead. Open path on your left.”" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/border_light" />
+
+            <!-- ========================================================
+                 6. TECHNOLOGY
+                 ======================================================== -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/surface"
+                android:orientation="vertical"
+                android:paddingStart="20dp"
+                android:paddingTop="40dp"
+                android:paddingEnd="20dp"
+                android:paddingBottom="40dp">
+
+                <TextView
+                    style="@style/Sonar.Eyebrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Architecture" />
+
+                <TextView
+                    style="@style/Sonar.H2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Built with proven, accessible technology" />
+
+                <TextView
+                    style="@style/Sonar.Body"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="The proposed wearable uses established open-source components. This Android prototype substitutes equivalent on-device SDKs for the same pipeline." />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="22dp"
+                    android:background="@drawable/bg_card_soft"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:letterSpacing="0.08"
+                        android:text="HARDWARE (PROPOSED WEARABLE)"
+                        android:textColor="@color/accent"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                    <TextView style="@style/Sonar.TechRow"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:text="Raspberry Pi 4 — central processing unit" />
+                    <TextView style="@style/Sonar.TechRow"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="8MP Camera Module — visual scene capture" />
+                    <TextView style="@style/Sonar.TechRow"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="HC-SR04 Sensor — ultrasonic distance (20–400 cm)" />
+                    <TextView style="@style/Sonar.TechRow"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="Bone Conduction — audio without blocking ambience" />
+                    <TextView style="@style/Sonar.TechRow"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="20,000 mAh Battery Pack — portable operation" />
+                    <TextView style="@style/Sonar.TechRow"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="Push Buttons &amp; Buzzer — tactile alerts" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:background="@drawable/bg_card_soft"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:letterSpacing="0.08"
+                        android:text="SOFTWARE STACK"
+                        android:textColor="@color/accent"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                    <TextView style="@style/Sonar.TechRow"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:text="Object detection — YOLOv8 on the wearable; ML Kit Object Detection in this app" />
+                    <TextView style="@style/Sonar.TechRow"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="Image processing — OpenCV / CameraX" />
+                    <TextView style="@style/Sonar.TechRow"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="Inference — TensorFlow Lite on-device" />
+                    <TextView style="@style/Sonar.TechRow"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="Face recognition — FaceNet (future)" />
+                    <TextView style="@style/Sonar.TechRow"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="Text reading — Tesseract OCR; ML Kit Text Recognition here" />
+                    <TextView style="@style/Sonar.TechRow"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="Voice — Whisper / Web Speech; Android SpeechRecognizer here" />
+                    <TextView style="@style/Sonar.TechRow"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="Speech output — gTTS / Festival; Android TextToSpeech here" />
+                    <TextView style="@style/Sonar.TechRow"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="Storage — SQLite / Room for personalisation" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/border_light" />
+
+            <!-- ========================================================
+                 7. PRIVACY
+                 ======================================================== -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:paddingStart="24dp"
+                android:paddingTop="44dp"
+                android:paddingEnd="24dp"
+                android:paddingBottom="44dp">
+
+                <ImageView
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:background="@drawable/bg_circle_outline"
+                    android:contentDescription="@null"
+                    android:importantForAccessibility="no"
+                    android:padding="14dp"
+                    android:src="@drawable/ic_shield"
+                    app:tint="@color/accent" />
+
+                <TextView
+                    style="@style/Sonar.H2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:gravity="center"
+                    android:text="Your surroundings should stay yours." />
+
+                <TextView
+                    style="@style/Sonar.Body"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:gravity="center"
+                    android:text="Sonar is designed around local processing, reducing dependence on cloud connectivity and keeping sensitive environmental information close to the device. The camera feed, detection results and personal data are processed on the device itself — nothing is uploaded, nothing is stored externally." />
+
+                <TextView
+                    style="@style/Sonar.Body"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:gravity="center"
+                    android:text="This Android prototype demonstrates the same principle: once the app is installed, it runs entirely offline. No data leaves this phone." />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/border_light" />
+
+            <!-- ========================================================
+                 8. METRICS
+                 ======================================================== -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/surface"
+                android:orientation="vertical"
+                android:paddingStart="20dp"
+                android:paddingTop="40dp"
+                android:paddingEnd="20dp"
+                android:paddingBottom="40dp">
+
+                <TextView
+                    style="@style/Sonar.Eyebrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:text="Expected outcomes" />
+
+                <TextView
+                    style="@style/Sonar.H2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center"
+                    android:text="Project targets" />
+
+                <TextView
+                    style="@style/Sonar.Body"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center"
+                    android:text="These figures represent the expected performance described in the project proposal — targets for the fully developed system." />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="22dp"
+                    android:background="@drawable/bg_card_soft"
+                    android:orientation="vertical">
+
+                    <include layout="@layout/item_metric" />
+                    <include layout="@layout/item_metric" />
+                    <include layout="@layout/item_metric" />
+                    <include layout="@layout/item_metric" />
+                    <include layout="@layout/item_metric" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/border_light" />
+
+            <!-- ========================================================
+                 9. FUTURE
+                 ======================================================== -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="20dp"
+                android:paddingTop="40dp"
+                android:paddingEnd="20dp"
+                android:paddingBottom="40dp">
+
+                <TextView
+                    style="@style/Sonar.Eyebrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Looking ahead" />
+
+                <TextView
+                    style="@style/Sonar.H2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Where this could go" />
+
+                <TextView
+                    style="@style/Sonar.Body"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="The project proposal identifies several directions for extending Sonar's capabilities beyond the initial prototype." />
+
+                <TextView style="@style/Sonar.FutureTitle"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="22dp" android:text="Improved vision models" />
+                <TextView style="@style/Sonar.FutureDesc"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="Adopting newer, more accurate detection architectures as they become available for edge deployment." />
+
+                <TextView style="@style/Sonar.FutureTitle"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="Semantic scene understanding" />
+                <TextView style="@style/Sonar.FutureDesc"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="Moving beyond individual object labels to describe spatial relationships and scene context." />
+
+                <TextView style="@style/Sonar.FutureTitle"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="Depth cameras &amp; LiDAR" />
+                <TextView style="@style/Sonar.FutureDesc"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="Replacing ultrasonic sensors with LiDAR or structured-light depth cameras for richer 3D data." />
+
+                <TextView style="@style/Sonar.FutureTitle"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="GPS &amp; IMU integration" />
+                <TextView style="@style/Sonar.FutureDesc"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="Adding location awareness and inertial measurement for outdoor navigation and route guidance." />
+
+                <TextView style="@style/Sonar.FutureTitle"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="Thermal &amp; haptic feedback" />
+                <TextView style="@style/Sonar.FutureDesc"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="Thermal sensors for heat sources, and vibration motors for non-audio directional alerts." />
+
+                <TextView style="@style/Sonar.FutureTitle"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="Multilingual support" />
+                <TextView style="@style/Sonar.FutureDesc"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="Extending speech synthesis and recognition to additional languages for broader accessibility." />
+
+                <TextView style="@style/Sonar.FutureTitle"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="Smart city &amp; emergency integration" />
+                <TextView style="@style/Sonar.FutureDesc"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="Connecting with traffic signals, public transport systems and emergency services." />
+
+                <TextView style="@style/Sonar.FutureTitle"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="Companion mobile application" />
+                <TextView style="@style/Sonar.FutureDesc"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="A phone app for remote monitoring, configuration and extending system reach." />
+            </LinearLayout>
+
+            <!-- ========================================================
+                 10. FOOTER
+                 ======================================================== -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/bg"
+                android:orientation="vertical"
+                android:paddingStart="20dp"
+                android:paddingTop="32dp"
+                android:paddingEnd="20dp"
+                android:paddingBottom="40dp">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/border" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="26dp"
+                    android:letterSpacing="0.06"
+                    android:text="SONAR"
+                    android:textColor="@color/text"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Assistive technology for a more navigable world."
+                    android:textColor="@color/text_muted"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:lineSpacingMultiplier="1.4"
+                    android:text="Student mini-project prototype · Built with CameraX, ML Kit &amp; Android TextToSpeech · No data leaves this device."
+                    android:textColor="@color/text_light"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</LinearLayout>

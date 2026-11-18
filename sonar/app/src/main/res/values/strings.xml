@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Sonar</string>
+    <string name="title_activity_main">Sonar</string>
+    <string name="package_name">com.sonar.assistant</string>
+    <string name="custom_url_scheme">com.sonar.assistant</string>
+</resources>
